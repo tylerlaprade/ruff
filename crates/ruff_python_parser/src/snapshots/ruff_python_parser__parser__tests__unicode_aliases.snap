@@ -15,10 +15,10 @@ expression: parse_ast
                     },
                 ),
             ],
-            value: StringLiteral(
-                ExprStringLiteral {
+            value: String(
+                ExprString {
                     range: 4..37,
-                    value: StringLiteralValue {
+                    value: StringExprValue {
                         inner: Single(
                             StringLiteral {
                                 range: 4..37,

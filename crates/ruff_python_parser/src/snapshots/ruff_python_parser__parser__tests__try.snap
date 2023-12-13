@@ -81,7 +81,7 @@ expression: parse_ast
                                                     FString(
                                                         ExprFString {
                                                             range: 62..81,
-                                                            value: FStringValue {
+                                                            value: FStringExprValue {
                                                                 inner: Single(
                                                                     FString(
                                                                         FString {
@@ -181,7 +181,7 @@ expression: parse_ast
                                                     FString(
                                                         ExprFString {
                                                             range: 114..133,
-                                                            value: FStringValue {
+                                                            value: FStringExprValue {
                                                                 inner: Single(
                                                                     FString(
                                                                         FString {

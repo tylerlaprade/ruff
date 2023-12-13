@@ -8,10 +8,10 @@ Call(
         func: Attribute(
             ExprAttribute {
                 range: 0..8,
-                value: StringLiteral(
-                    ExprStringLiteral {
+                value: String(
+                    ExprString {
                         range: 0..3,
-                        value: StringLiteralValue {
+                        value: StringExprValue {
                             inner: Single(
                                 StringLiteral {
                                     range: 0..3,
@@ -69,10 +69,10 @@ Call(
                                                     body: BinOp(
                                                         ExprBinOp {
                                                             range: 43..61,
-                                                            left: StringLiteral(
-                                                                ExprStringLiteral {
+                                                            left: String(
+                                                                ExprString {
                                                                     range: 43..53,
-                                                                    value: StringLiteralValue {
+                                                                    value: StringExprValue {
                                                                         inner: Single(
                                                                             StringLiteral {
                                                                                 range: 43..53,
@@ -113,10 +113,10 @@ Call(
                                                     body: BinOp(
                                                         ExprBinOp {
                                                             range: 91..111,
-                                                            left: StringLiteral(
-                                                                ExprStringLiteral {
+                                                            left: String(
+                                                                ExprString {
                                                                     range: 91..102,
-                                                                    value: StringLiteralValue {
+                                                                    value: StringExprValue {
                                                                         inner: Single(
                                                                             StringLiteral {
                                                                                 range: 91..102,

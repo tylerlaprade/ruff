@@ -19,10 +19,10 @@ expression: parse_ast
                     arguments: Arguments {
                         range: 7..32,
                         args: [
-                            StringLiteral(
-                                ExprStringLiteral {
+                            String(
+                                ExprString {
                                     range: 8..20,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Single(
                                             StringLiteral {
                                                 range: 8..20,

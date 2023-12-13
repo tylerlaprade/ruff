@@ -6,10 +6,10 @@ expression: parse_ast
     Expr(
         StmtExpr {
             range: 0..14,
-            value: BytesLiteral(
-                ExprBytesLiteral {
+            value: Bytes(
+                ExprBytes {
                     range: 0..14,
-                    value: BytesLiteralValue {
+                    value: BytesExprValue {
                         inner: Single(
                             BytesLiteral {
                                 range: 0..14,

@@ -24,10 +24,10 @@ expression: parse_ast
                                     arguments: Arguments {
                                         range: 29..98,
                                         args: [
-                                            StringLiteral(
-                                                ExprStringLiteral {
+                                            String(
+                                                ExprString {
                                                     range: 30..34,
-                                                    value: StringLiteralValue {
+                                                    value: StringExprValue {
                                                         inner: Single(
                                                             StringLiteral {
                                                                 range: 30..34,
@@ -199,7 +199,7 @@ expression: parse_ast
                                                     FString(
                                                         ExprFString {
                                                             range: 133..179,
-                                                            value: FStringValue {
+                                                            value: FStringExprValue {
                                                                 inner: Single(
                                                                     FString(
                                                                         FString {
@@ -330,7 +330,7 @@ expression: parse_ast
                                                     FString(
                                                         ExprFString {
                                                             range: 213..259,
-                                                            value: FStringValue {
+                                                            value: FStringExprValue {
                                                                 inner: Single(
                                                                     FString(
                                                                         FString {

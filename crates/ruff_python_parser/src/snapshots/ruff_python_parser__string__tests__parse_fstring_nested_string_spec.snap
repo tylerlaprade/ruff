@@ -9,7 +9,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 0..13,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -34,10 +34,10 @@ expression: parse_ast
                                                             Expression(
                                                                 FStringExpressionElement {
                                                                     range: 7..11,
-                                                                    expression: StringLiteral(
-                                                                        ExprStringLiteral {
+                                                                    expression: String(
+                                                                        ExprString {
                                                                             range: 8..10,
-                                                                            value: StringLiteralValue {
+                                                                            value: StringExprValue {
                                                                                 inner: Single(
                                                                                     StringLiteral {
                                                                                         range: 8..10,

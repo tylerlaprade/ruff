@@ -11,10 +11,10 @@ Ok(
                     Attribute(
                         ExprAttribute {
                             range: 0..7,
-                            value: StringLiteral(
-                                ExprStringLiteral {
+                            value: String(
+                                ExprString {
                                     range: 0..5,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Single(
                                             StringLiteral {
                                                 range: 0..5,

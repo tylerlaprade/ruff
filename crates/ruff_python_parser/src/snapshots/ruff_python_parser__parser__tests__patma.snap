@@ -498,10 +498,10 @@ expression: parse_ast
                             StmtReturn {
                                 range: 477..489,
                                 value: Some(
-                                    StringLiteral(
-                                        ExprStringLiteral {
+                                    String(
+                                        ExprString {
                                             range: 484..489,
-                                            value: StringLiteralValue {
+                                            value: StringExprValue {
                                                 inner: Single(
                                                     StringLiteral {
                                                         range: 484..489,
@@ -533,10 +533,10 @@ expression: parse_ast
                             StmtReturn {
                                 range: 511..523,
                                 value: Some(
-                                    StringLiteral(
-                                        ExprStringLiteral {
+                                    String(
+                                        ExprString {
                                             range: 518..523,
-                                            value: StringLiteralValue {
+                                            value: StringExprValue {
                                                 inner: Single(
                                                     StringLiteral {
                                                         range: 518..523,
@@ -830,10 +830,10 @@ expression: parse_ast
                                 MatchValue(
                                     PatternMatchValue {
                                         range: 664..667,
-                                        value: StringLiteral(
-                                            ExprStringLiteral {
+                                        value: String(
+                                            ExprString {
                                                 range: 664..667,
-                                                value: StringLiteralValue {
+                                                value: StringExprValue {
                                                     inner: Single(
                                                         StringLiteral {
                                                             range: 664..667,
@@ -1566,10 +1566,10 @@ expression: parse_ast
                         PatternMatchMapping {
                             range: 1286..1298,
                             keys: [
-                                StringLiteral(
-                                    ExprStringLiteral {
+                                String(
+                                    ExprString {
                                         range: 1287..1292,
-                                        value: StringLiteralValue {
+                                        value: StringExprValue {
                                             inner: Single(
                                                 StringLiteral {
                                                     range: 1287..1292,
@@ -2490,10 +2490,10 @@ expression: parse_ast
                                 MatchValue(
                                     PatternMatchValue {
                                         range: 2036..2038,
-                                        value: StringLiteral(
-                                            ExprStringLiteral {
+                                        value: String(
+                                            ExprString {
                                                 range: 2036..2038,
-                                                value: StringLiteralValue {
+                                                value: StringExprValue {
                                                     inner: Single(
                                                         StringLiteral {
                                                             range: 2036..2038,
@@ -2540,10 +2540,10 @@ expression: parse_ast
                     pattern: MatchValue(
                         PatternMatchValue {
                             range: 2064..2066,
-                            value: StringLiteral(
-                                ExprStringLiteral {
+                            value: String(
+                                ExprString {
                                     range: 2064..2066,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Single(
                                             StringLiteral {
                                                 range: 2064..2066,
@@ -3164,10 +3164,10 @@ expression: parse_ast
                                 MatchValue(
                                     PatternMatchValue {
                                         range: 2449..2452,
-                                        value: StringLiteral(
-                                            ExprStringLiteral {
+                                        value: String(
+                                            ExprString {
                                                 range: 2449..2452,
-                                                value: StringLiteralValue {
+                                                value: StringExprValue {
                                                     inner: Single(
                                                         StringLiteral {
                                                             range: 2449..2452,

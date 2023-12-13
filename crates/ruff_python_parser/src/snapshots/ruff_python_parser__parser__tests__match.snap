@@ -11,10 +11,10 @@ expression: parse_ast
                     range: 7..18,
                     keys: [
                         Some(
-                            StringLiteral(
-                                ExprStringLiteral {
+                            String(
+                                ExprString {
                                     range: 8..14,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Single(
                                             StringLiteral {
                                                 range: 8..14,
@@ -100,10 +100,10 @@ expression: parse_ast
                     range: 80..97,
                     keys: [
                         Some(
-                            StringLiteral(
-                                ExprStringLiteral {
+                            String(
+                                ExprString {
                                     range: 81..88,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Single(
                                             StringLiteral {
                                                 range: 81..88,
@@ -117,10 +117,10 @@ expression: parse_ast
                         ),
                     ],
                     values: [
-                        StringLiteral(
-                            ExprStringLiteral {
+                        String(
+                            ExprString {
                                 range: 90..96,
-                                value: StringLiteralValue {
+                                value: StringExprValue {
                                     inner: Single(
                                         StringLiteral {
                                             range: 90..96,
@@ -141,10 +141,10 @@ expression: parse_ast
                         PatternMatchMapping {
                             range: 108..155,
                             keys: [
-                                StringLiteral(
-                                    ExprStringLiteral {
+                                String(
+                                    ExprString {
                                         range: 118..125,
-                                        value: StringLiteralValue {
+                                        value: StringExprValue {
                                             inner: Single(
                                                 StringLiteral {
                                                     range: 118..125,

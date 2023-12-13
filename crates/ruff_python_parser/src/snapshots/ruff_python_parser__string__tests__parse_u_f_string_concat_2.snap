@@ -9,10 +9,10 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 0..22,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Concatenated(
                             [
-                                Literal(
+                                String(
                                     StringLiteral {
                                         range: 0..9,
                                         value: "Hello ",
@@ -32,7 +32,7 @@ expression: parse_ast
                                         ],
                                     },
                                 ),
-                                Literal(
+                                String(
                                     StringLiteral {
                                         range: 19..22,
                                         value: "!",

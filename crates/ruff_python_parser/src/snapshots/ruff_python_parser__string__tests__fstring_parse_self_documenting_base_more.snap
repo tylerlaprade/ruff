@@ -9,7 +9,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 0..38,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {

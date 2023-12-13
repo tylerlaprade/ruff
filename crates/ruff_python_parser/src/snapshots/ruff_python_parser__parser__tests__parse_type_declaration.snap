@@ -78,10 +78,10 @@ expression: "parse_suite(source, \"<test>\").unwrap()"
                         },
                     ),
                     op: BitOr,
-                    right: StringLiteral(
-                        ExprStringLiteral {
+                    right: String(
+                        ExprString {
                             range: 48..61,
-                            value: StringLiteralValue {
+                            value: StringExprValue {
                                 inner: Single(
                                     StringLiteral {
                                         range: 48..61,

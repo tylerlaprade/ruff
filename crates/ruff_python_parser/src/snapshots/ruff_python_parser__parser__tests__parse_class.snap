@@ -113,10 +113,10 @@ expression: "parse_suite(source, \"<test>\").unwrap()"
                                         annotation: None,
                                     },
                                     default: Some(
-                                        StringLiteral(
-                                            ExprStringLiteral {
+                                        String(
+                                            ExprString {
                                                 range: 80..89,
-                                                value: StringLiteralValue {
+                                                value: StringExprValue {
                                                     inner: Single(
                                                         StringLiteral {
                                                             range: 80..89,

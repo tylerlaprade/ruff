@@ -9,7 +9,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 0..9,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -18,10 +18,10 @@ expression: parse_ast
                                         Expression(
                                             FStringExpressionElement {
                                                 range: 2..8,
-                                                expression: StringLiteral(
-                                                    ExprStringLiteral {
+                                                expression: String(
+                                                    ExprString {
                                                         range: 3..7,
-                                                        value: StringLiteralValue {
+                                                        value: StringExprValue {
                                                             inner: Single(
                                                                 StringLiteral {
                                                                     range: 3..7,
@@ -52,7 +52,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 10..20,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -88,7 +88,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 21..28,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -133,7 +133,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 29..39,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -193,7 +193,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 40..55,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -219,10 +219,10 @@ expression: parse_ast
                                                             Expression(
                                                                 FStringExpressionElement {
                                                                     range: 45..50,
-                                                                    expression: StringLiteral(
-                                                                        ExprStringLiteral {
+                                                                    expression: String(
+                                                                        ExprString {
                                                                             range: 46..49,
-                                                                            value: StringLiteralValue {
+                                                                            value: StringExprValue {
                                                                                 inner: Single(
                                                                                     StringLiteral {
                                                                                         range: 46..49,
@@ -264,7 +264,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 56..71,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -290,10 +290,10 @@ expression: parse_ast
                                                             Expression(
                                                                 FStringExpressionElement {
                                                                     range: 61..66,
-                                                                    expression: StringLiteral(
-                                                                        ExprStringLiteral {
+                                                                    expression: String(
+                                                                        ExprString {
                                                                             range: 62..65,
-                                                                            value: StringLiteralValue {
+                                                                            value: StringExprValue {
                                                                                 inner: Single(
                                                                                     StringLiteral {
                                                                                         range: 62..65,
@@ -335,7 +335,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 72..86,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -376,7 +376,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 87..107,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -429,7 +429,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 108..126,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -470,7 +470,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 127..143,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -528,7 +528,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 144..170,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -540,7 +540,7 @@ expression: parse_ast
                                                 expression: FString(
                                                     ExprFString {
                                                         range: 147..163,
-                                                        value: FStringValue {
+                                                        value: FStringExprValue {
                                                             inner: Single(
                                                                 FString(
                                                                     FString {
@@ -623,10 +623,10 @@ expression: parse_ast
                             FString(
                                 ExprFString {
                                     range: 173..201,
-                                    value: FStringValue {
+                                    value: FStringExprValue {
                                         inner: Concatenated(
                                             [
-                                                Literal(
+                                                String(
                                                     StringLiteral {
                                                         range: 173..179,
                                                         value: "foo ",
@@ -680,7 +680,7 @@ expression: parse_ast
                                                         ],
                                                     },
                                                 ),
-                                                Literal(
+                                                String(
                                                     StringLiteral {
                                                         range: 196..201,
                                                         value: "baz",
@@ -724,10 +724,10 @@ expression: parse_ast
                     pattern: MatchValue(
                         PatternMatchValue {
                             range: 227..232,
-                            value: StringLiteral(
-                                ExprStringLiteral {
+                            value: String(
+                                ExprString {
                                     range: 227..232,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Single(
                                             StringLiteral {
                                                 range: 227..232,
@@ -754,10 +754,10 @@ expression: parse_ast
                     pattern: MatchValue(
                         PatternMatchValue {
                             range: 256..284,
-                            value: StringLiteral(
-                                ExprStringLiteral {
+                            value: String(
+                                ExprString {
                                     range: 256..284,
-                                    value: StringLiteralValue {
+                                    value: StringExprValue {
                                         inner: Concatenated(
                                             ConcatenatedStringLiteral {
                                                 strings: [
@@ -798,7 +798,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 300..317,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -873,7 +873,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 318..332,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
@@ -900,7 +900,7 @@ expression: parse_ast
             value: FString(
                 ExprFString {
                     range: 333..373,
-                    value: FStringValue {
+                    value: FStringExprValue {
                         inner: Single(
                             FString(
                                 FString {
