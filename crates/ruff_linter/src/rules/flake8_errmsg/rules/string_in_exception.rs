@@ -183,7 +183,7 @@ pub(crate) fn string_in_exception(checker: &mut Checker, stmt: &Stmt, exc: &Expr
         if let Some(first) = args.first() {
             match first {
                 // Check for string literals.
-                Expr::StringLiteral(ast::ExprStringLiteral { value: string, .. }) => {
+                Expr::String(ast::ExprString { value: string, .. }) => {
                     if checker.enabled(Rule::RawStringInException) {
                         if string.len() >= checker.settings.flake8_errmsg.max_string_length {
                             let mut diagnostic =

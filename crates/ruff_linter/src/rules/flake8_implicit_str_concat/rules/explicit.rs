@@ -51,10 +51,10 @@ pub(crate) fn explicit(expr: &Expr, locator: &Locator) -> Option<Diagnostic> {
         if matches!(op, Operator::Add) {
             if matches!(
                 left.as_ref(),
-                Expr::FString(_) | Expr::StringLiteral(_) | Expr::BytesLiteral(_)
+                Expr::FString(_) | Expr::String(_) | Expr::Bytes(_)
             ) && matches!(
                 right.as_ref(),
-                Expr::FString(_) | Expr::StringLiteral(_) | Expr::BytesLiteral(_)
+                Expr::FString(_) | Expr::String(_) | Expr::Bytes(_)
             ) && locator.contains_line_break(*range)
             {
                 return Some(Diagnostic::new(ExplicitStringConcatenation, expr.range()));

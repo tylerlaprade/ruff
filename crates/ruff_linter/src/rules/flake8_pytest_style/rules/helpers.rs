@@ -44,7 +44,7 @@ pub(super) fn is_pytest_parametrize(decorator: &Decorator, semantic: &SemanticMo
 }
 
 pub(super) fn keyword_is_literal(keyword: &Keyword, literal: &str) -> bool {
-    if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = &keyword.value {
+    if let Expr::String(ast::ExprString { value, .. }) = &keyword.value {
         value == literal
     } else {
         false
@@ -53,11 +53,11 @@ pub(super) fn keyword_is_literal(keyword: &Keyword, literal: &str) -> bool {
 
 pub(super) fn is_empty_or_null_string(expr: &Expr) -> bool {
     match expr {
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => value.is_empty(),
+        Expr::String(ast::ExprString { value, .. }) => value.is_empty(),
         Expr::NoneLiteral(_) => true,
         Expr::FString(ast::ExprFString { value, .. }) => {
             value.iter().all(|f_string_part| match f_string_part {
-                ast::FStringPart::Literal(literal) => literal.is_empty(),
+                ast::FStringPart::String(literal) => literal.is_empty(),
                 ast::FStringPart::FString(f_string) => f_string
                     .elements
                     .iter()

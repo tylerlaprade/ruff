@@ -1072,10 +1072,10 @@ impl<'a> Generator<'a> {
             Expr::FString(ast::ExprFString { value, .. }) => {
                 self.unparse_f_string_value(value, false);
             }
-            Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+            Expr::String(ast::ExprString { value, .. }) => {
                 self.unparse_string_literal_value(value);
             }
-            Expr::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => {
+            Expr::Bytes(ast::ExprBytes { value, .. }) => {
                 let mut first = true;
                 for bytes_literal in value {
                     self.p_delim(&mut first, " ");
@@ -1271,7 +1271,7 @@ impl<'a> Generator<'a> {
         self.p_str_repr(&string_literal.value);
     }
 
-    fn unparse_string_literal_value(&mut self, value: &ast::StringLiteralValue) {
+    fn unparse_string_literal_value(&mut self, value: &ast::StringExprValue) {
         let mut first = true;
         for string_literal in value {
             self.p_delim(&mut first, " ");
@@ -1279,12 +1279,12 @@ impl<'a> Generator<'a> {
         }
     }
 
-    fn unparse_f_string_value(&mut self, value: &ast::FStringValue, is_spec: bool) {
+    fn unparse_f_string_value(&mut self, value: &ast::FStringExprValue, is_spec: bool) {
         let mut first = true;
         for f_string_part in value {
             self.p_delim(&mut first, " ");
             match f_string_part {
-                ast::FStringPart::Literal(string_literal) => {
+                ast::FStringPart::String(string_literal) => {
                     self.unparse_string_literal(string_literal);
                 }
                 ast::FStringPart::FString(f_string) => {

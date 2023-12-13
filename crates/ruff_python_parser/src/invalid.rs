@@ -62,8 +62,8 @@ pub(crate) fn assignment_target(target: &Expr) -> Result<(), LexicalError> {
         // FString is recursive, but all its forms are invalid as an
         // assignment target, so we can reject it without exploring it.
         FString(ref e) => Err(err(e.range.start())),
-        StringLiteral(ref e) => Err(err(e.range.start())),
-        BytesLiteral(ref e) => Err(err(e.range.start())),
+        String(ref e) => Err(err(e.range.start())),
+        Bytes(ref e) => Err(err(e.range.start())),
         NumberLiteral(ref e) => Err(err(e.range.start())),
         BooleanLiteral(ref e) => Err(err(e.range.start())),
         NoneLiteral(ref e) => Err(err(e.range.start())),

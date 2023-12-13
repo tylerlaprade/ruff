@@ -78,8 +78,8 @@ impl From<&Expr> for ResolvedPythonType {
             Expr::Tuple(_) => ResolvedPythonType::Atom(PythonType::Tuple),
             Expr::GeneratorExp(_) => ResolvedPythonType::Atom(PythonType::Generator),
             Expr::FString(_) => ResolvedPythonType::Atom(PythonType::String),
-            Expr::StringLiteral(_) => ResolvedPythonType::Atom(PythonType::String),
-            Expr::BytesLiteral(_) => ResolvedPythonType::Atom(PythonType::Bytes),
+            Expr::String(_) => ResolvedPythonType::Atom(PythonType::String),
+            Expr::Bytes(_) => ResolvedPythonType::Atom(PythonType::Bytes),
             Expr::NumberLiteral(ast::ExprNumberLiteral { value, .. }) => match value {
                 ast::Number::Int(_) => {
                     ResolvedPythonType::Atom(PythonType::Number(NumberLike::Integer))

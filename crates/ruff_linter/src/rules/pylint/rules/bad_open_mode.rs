@@ -59,7 +59,7 @@ pub(crate) fn bad_open_mode(checker: &mut Checker, call: &ast::ExprCall) {
         return;
     };
 
-    let Some(ast::ExprStringLiteral { value, .. }) = mode.as_string_literal_expr() else {
+    let Some(ast::ExprString { value, .. }) = mode.as_string_literal_expr() else {
         return;
     };
 
@@ -154,7 +154,7 @@ impl TryFrom<char> for OpenMode {
 }
 
 /// Returns `true` if the open mode is valid.
-fn is_valid_mode(mode: &ast::StringLiteralValue) -> bool {
+fn is_valid_mode(mode: &ast::StringExprValue) -> bool {
     // Flag duplicates and invalid characters.
     let mut flags = OpenMode::empty();
     for char in mode.chars() {

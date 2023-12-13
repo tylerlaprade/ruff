@@ -1,7 +1,7 @@
 use ruff_diagnostics::{Diagnostic, Edit, Fix, FixAvailability, Violation};
 use ruff_macros::{derive_message_formats, violation};
 use ruff_python_ast::helpers::generate_comparison;
-use ruff_python_ast::{self as ast, CmpOp, Expr, ExprStringLiteral};
+use ruff_python_ast::{self as ast, CmpOp, Expr, ExprString};
 use ruff_text_size::Ranged;
 
 use crate::checkers::ast::Checker;
@@ -105,7 +105,7 @@ fn single_item(expr: &Expr) -> Option<&Expr> {
             [item] => Some(item),
             _ => None,
         },
-        string_expr @ Expr::StringLiteral(ExprStringLiteral { value: string, .. })
+        string_expr @ Expr::String(ExprString { value: string, .. })
             if string.chars().count() == 1 =>
         {
             Some(string_expr)

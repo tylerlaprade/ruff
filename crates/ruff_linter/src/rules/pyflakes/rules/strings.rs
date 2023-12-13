@@ -582,7 +582,7 @@ pub(crate) fn percent_format_extra_named_arguments(
         .iter()
         .enumerate()
         .filter_map(|(index, key)| match key {
-            Some(Expr::StringLiteral(ast::ExprStringLiteral { value, .. })) => {
+            Some(Expr::String(ast::ExprString { value, .. })) => {
                 if summary.keywords.contains(value.to_str()) {
                     None
                 } else {
@@ -640,7 +640,7 @@ pub(crate) fn percent_format_missing_arguments(
     let mut keywords = FxHashSet::default();
     for key in keys.iter().flatten() {
         match key {
-            Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+            Expr::String(ast::ExprString { value, .. }) => {
                 keywords.insert(value.to_str());
             }
             _ => {

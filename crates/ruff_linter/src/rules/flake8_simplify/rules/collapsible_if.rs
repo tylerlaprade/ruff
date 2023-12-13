@@ -253,9 +253,7 @@ fn is_main_check(expr: &Expr) -> bool {
     {
         if let Expr::Name(ast::ExprName { id, .. }) = left.as_ref() {
             if id == "__name__" {
-                if let [Expr::StringLiteral(ast::ExprStringLiteral { value, .. })] =
-                    comparators.as_slice()
-                {
+                if let [Expr::String(ast::ExprString { value, .. })] = comparators.as_slice() {
                     if value == "__main__" {
                         return true;
                     }

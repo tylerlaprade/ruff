@@ -803,7 +803,7 @@ where
             && self.semantic.in_type_definition()
             && self.semantic.future_annotations()
         {
-            if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = expr {
+            if let Expr::String(ast::ExprString { value, .. }) = expr {
                 self.deferred.string_type_definitions.push((
                     expr.range(),
                     value.to_str(),
@@ -1219,7 +1219,7 @@ where
                     }
                 }
             }
-            Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+            Expr::String(ast::ExprString { value, .. }) => {
                 if self.semantic.in_type_definition() && !self.semantic.in_typing_literal() {
                     self.deferred.string_type_definitions.push((
                         expr.range(),
@@ -1251,10 +1251,10 @@ where
         // Step 4: Analysis
         analyze::expression(expr, self);
         match expr {
-            Expr::StringLiteral(string_literal) => {
+            Expr::String(string_literal) => {
                 analyze::string_like(string_literal.into(), self);
             }
-            Expr::BytesLiteral(bytes_literal) => analyze::string_like(bytes_literal.into(), self),
+            Expr::Bytes(bytes_literal) => analyze::string_like(bytes_literal.into(), self),
             _ => {}
         }
 

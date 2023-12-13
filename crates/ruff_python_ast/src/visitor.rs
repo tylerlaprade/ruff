@@ -479,19 +479,19 @@ pub fn walk_expr<'a, V: Visitor<'a> + ?Sized>(visitor: &mut V, expr: &'a Expr) {
         Expr::FString(ast::ExprFString { value, .. }) => {
             for part in value {
                 match part {
-                    FStringPart::Literal(string_literal) => {
+                    FStringPart::String(string_literal) => {
                         visitor.visit_string_literal(string_literal);
                     }
                     FStringPart::FString(f_string) => visitor.visit_f_string(f_string),
                 }
             }
         }
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+        Expr::String(ast::ExprString { value, .. }) => {
             for string_literal in value {
                 visitor.visit_string_literal(string_literal);
             }
         }
-        Expr::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => {
+        Expr::Bytes(ast::ExprBytes { value, .. }) => {
             for bytes_literal in value {
                 visitor.visit_bytes_literal(bytes_literal);
             }

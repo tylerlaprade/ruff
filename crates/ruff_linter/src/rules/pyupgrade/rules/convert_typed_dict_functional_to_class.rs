@@ -173,7 +173,7 @@ fn fields_from_dict_literal(keys: &[Option<Expr>], values: &[Expr]) -> Option<Ve
         keys.iter()
             .zip(values.iter())
             .map(|(key, value)| match key {
-                Some(Expr::StringLiteral(ast::ExprStringLiteral { value: field, .. })) => {
+                Some(Expr::String(ast::ExprString { value: field, .. })) => {
                     if !is_identifier(field.to_str()) {
                         return None;
                     }

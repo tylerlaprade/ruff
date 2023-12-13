@@ -1,5 +1,5 @@
 use ruff_python_ast::AnyNodeRef;
-use ruff_python_ast::ExprBytesLiteral;
+use ruff_python_ast::ExprBytes;
 
 use crate::comments::SourceComment;
 use crate::expression::expr_string_literal::is_multiline_string;
@@ -10,8 +10,8 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct FormatExprBytesLiteral;
 
-impl FormatNodeRule<ExprBytesLiteral> for FormatExprBytesLiteral {
-    fn fmt_fields(&self, item: &ExprBytesLiteral, f: &mut PyFormatter) -> FormatResult<()> {
+impl FormatNodeRule<ExprBytes> for FormatExprBytesLiteral {
+    fn fmt_fields(&self, item: &ExprBytes, f: &mut PyFormatter) -> FormatResult<()> {
         FormatString::new(&AnyString::Bytes(item)).fmt(f)
     }
 
@@ -25,7 +25,7 @@ impl FormatNodeRule<ExprBytesLiteral> for FormatExprBytesLiteral {
     }
 }
 
-impl NeedsParentheses for ExprBytesLiteral {
+impl NeedsParentheses for ExprBytes {
     fn needs_parentheses(
         &self,
         _parent: AnyNodeRef,

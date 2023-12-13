@@ -165,7 +165,7 @@ fn duplicates(call: &ast::ExprCall) -> FxHashSet<&str> {
 
 /// Return `Some` if a key is a valid keyword argument name, or `None` otherwise.
 fn as_kwarg(key: &Expr) -> Option<&str> {
-    if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = key {
+    if let Expr::String(ast::ExprString { value, .. }) = key {
         if is_identifier(value.to_str()) {
             return Some(value.to_str());
         }

@@ -71,10 +71,10 @@ impl Transformer for Relocator {
             Expr::FString(nodes::ExprFString { range, .. }) => {
                 *range = self.range;
             }
-            Expr::StringLiteral(nodes::ExprStringLiteral { range, .. }) => {
+            Expr::String(nodes::ExprString { range, .. }) => {
                 *range = self.range;
             }
-            Expr::BytesLiteral(nodes::ExprBytesLiteral { range, .. }) => {
+            Expr::Bytes(nodes::ExprBytes { range, .. }) => {
                 *range = self.range;
             }
             Expr::NumberLiteral(nodes::ExprNumberLiteral { range, .. }) => {

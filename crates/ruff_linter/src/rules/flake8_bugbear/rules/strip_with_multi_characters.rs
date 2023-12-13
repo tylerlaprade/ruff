@@ -68,7 +68,7 @@ pub(crate) fn strip_with_multi_characters(
         return;
     }
 
-    let [Expr::StringLiteral(ast::ExprStringLiteral { value, .. })] = args else {
+    let [Expr::String(ast::ExprString { value, .. })] = args else {
         return;
     };
 

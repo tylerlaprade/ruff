@@ -149,8 +149,8 @@ pub(crate) fn repeated_keys(checker: &mut Checker, dict: &ast::ExprDict) {
         };
 
         match key {
-            Expr::StringLiteral(_)
-            | Expr::BytesLiteral(_)
+            Expr::String(_)
+            | Expr::Bytes(_)
             | Expr::NumberLiteral(_)
             | Expr::BooleanLiteral(_)
             | Expr::NoneLiteral(_)

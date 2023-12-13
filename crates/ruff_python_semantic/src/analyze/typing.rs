@@ -142,7 +142,7 @@ pub fn to_pep604_operator(
     /// Returns `true` if any argument in the slice is a quoted annotation.
     fn quoted_annotation(slice: &Expr) -> bool {
         match slice {
-            Expr::StringLiteral(_) => true,
+            Expr::String(_) => true,
             Expr::Tuple(ast::ExprTuple { elts, .. }) => elts.iter().any(quoted_annotation),
             _ => false,
         }

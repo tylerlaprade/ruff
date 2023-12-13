@@ -122,10 +122,7 @@ fn is_empty_body(body: &[Stmt]) -> bool {
     body.iter().all(|stmt| match stmt {
         Stmt::Pass(_) => true,
         Stmt::Expr(ast::StmtExpr { value, range: _ }) => {
-            matches!(
-                value.as_ref(),
-                Expr::StringLiteral(_) | Expr::EllipsisLiteral(_)
-            )
+            matches!(value.as_ref(), Expr::String(_) | Expr::EllipsisLiteral(_))
         }
         _ => false,
     })

@@ -1,4 +1,4 @@
-use ruff_python_ast::ExprStringLiteral;
+use ruff_python_ast::ExprString;
 
 use ruff_diagnostics::{Diagnostic, Violation};
 use ruff_macros::{derive_message_formats, violation};
@@ -36,7 +36,7 @@ impl Violation for DocstringInStub {
 }
 
 /// PYI021
-pub(crate) fn docstring_in_stubs(checker: &mut Checker, docstring: Option<&ExprStringLiteral>) {
+pub(crate) fn docstring_in_stubs(checker: &mut Checker, docstring: Option<&ExprString>) {
     if let Some(docstr) = docstring {
         checker
             .diagnostics

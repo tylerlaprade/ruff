@@ -70,8 +70,8 @@ where
         if let Expr::BinOp(ast::ExprBinOp { left, right, .. }) = expr {
             if !matches!(
                 left.as_ref(),
-                Expr::StringLiteral(_)
-                    | Expr::BytesLiteral(_)
+                Expr::String(_)
+                    | Expr::Bytes(_)
                     | Expr::NumberLiteral(_)
                     | Expr::BooleanLiteral(_)
                     | Expr::NoneLiteral(_)
@@ -89,8 +89,8 @@ where
             }
             if !matches!(
                 right.as_ref(),
-                Expr::StringLiteral(_)
-                    | Expr::BytesLiteral(_)
+                Expr::String(_)
+                    | Expr::Bytes(_)
                     | Expr::NumberLiteral(_)
                     | Expr::BooleanLiteral(_)
                     | Expr::NoneLiteral(_)
@@ -251,8 +251,8 @@ pub fn any_over_expr(expr: &Expr, func: &dyn Fn(&Expr) -> bool) -> bool {
                     .is_some_and(|value| any_over_expr(value, func))
         }
         Expr::Name(_)
-        | Expr::StringLiteral(_)
-        | Expr::BytesLiteral(_)
+        | Expr::String(_)
+        | Expr::Bytes(_)
         | Expr::NumberLiteral(_)
         | Expr::BooleanLiteral(_)
         | Expr::NoneLiteral(_)
@@ -1279,14 +1279,14 @@ impl Truthiness {
         F: Fn(&str) -> bool,
     {
         match expr {
-            Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+            Expr::String(ast::ExprString { value, .. }) => {
                 if value.is_empty() {
                     Self::Falsey
                 } else {
                     Self::Truthy
                 }
             }
-            Expr::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => {
+            Expr::Bytes(ast::ExprBytes { value, .. }) => {
                 if value.is_empty() {
                     Self::Falsey
                 } else {
@@ -1327,7 +1327,7 @@ impl Truthiness {
             Expr::EllipsisLiteral(_) => Self::Truthy,
             Expr::FString(ast::ExprFString { value, .. }) => {
                 if value.iter().all(|part| match part {
-                    ast::FStringPart::Literal(string_literal) => string_literal.is_empty(),
+                    ast::FStringPart::String(string_literal) => string_literal.is_empty(),
                     ast::FStringPart::FString(f_string) => f_string.elements.is_empty(),
                 }) {
                     Self::Falsey

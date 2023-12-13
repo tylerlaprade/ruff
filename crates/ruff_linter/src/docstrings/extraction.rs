@@ -4,7 +4,7 @@ use ruff_python_ast::{self as ast, Stmt};
 use ruff_python_semantic::{Definition, DefinitionId, Definitions, Member, MemberKind};
 
 /// Extract a docstring from a function or class body.
-pub(crate) fn docstring_from(suite: &[Stmt]) -> Option<&ast::ExprStringLiteral> {
+pub(crate) fn docstring_from(suite: &[Stmt]) -> Option<&ast::ExprString> {
     let stmt = suite.first()?;
     // Require the docstring to be a standalone expression.
     let Stmt::Expr(ast::StmtExpr { value, range: _ }) = stmt else {
@@ -15,9 +15,7 @@ pub(crate) fn docstring_from(suite: &[Stmt]) -> Option<&ast::ExprStringLiteral> 
 }
 
 /// Extract a docstring from a `Definition`.
-pub(crate) fn extract_docstring<'a>(
-    definition: &'a Definition<'a>,
-) -> Option<&'a ast::ExprStringLiteral> {
+pub(crate) fn extract_docstring<'a>(definition: &'a Definition<'a>) -> Option<&'a ast::ExprString> {
     match definition {
         Definition::Module(module) => docstring_from(module.python_ast),
         Definition::Member(member) => docstring_from(member.body()),

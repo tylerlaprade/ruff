@@ -92,7 +92,7 @@ fn contains_message(expr: &Expr) -> bool {
         Expr::FString(ast::ExprFString { value, .. }) => {
             for f_string_part in value {
                 match f_string_part {
-                    ast::FStringPart::Literal(literal) => {
+                    ast::FStringPart::String(literal) => {
                         if literal.chars().any(char::is_whitespace) {
                             return true;
                         }
@@ -111,7 +111,7 @@ fn contains_message(expr: &Expr) -> bool {
                 }
             }
         }
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+        Expr::String(ast::ExprString { value, .. }) => {
             if value.chars().any(char::is_whitespace) {
                 return true;
             }

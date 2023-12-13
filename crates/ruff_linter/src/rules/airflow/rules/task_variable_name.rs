@@ -78,7 +78,7 @@ pub(crate) fn variable_name_task_id(
     let keyword = arguments.find_keyword("task_id")?;
 
     // If the keyword argument is not a string, we can't do anything.
-    let ast::ExprStringLiteral { value: task_id, .. } = keyword.value.as_string_literal_expr()?;
+    let ast::ExprString { value: task_id, .. } = keyword.value.as_string_literal_expr()?;
 
     // If the target name is the same as the task_id, no violation.
     if task_id == id {

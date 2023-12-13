@@ -371,8 +371,8 @@ pub(crate) fn concatenated_strings(
                 _ => unreachable!("Unexpected non-bytes literal."),
             }
         }
-        return Ok(Expr::from(ast::ExprBytesLiteral {
-            value: ast::BytesLiteralValue::concatenated(values),
+        return Ok(Expr::from(ast::ExprBytes {
+            value: ast::BytesExprValue::concatenated(values),
             range,
         }));
     }
@@ -385,8 +385,8 @@ pub(crate) fn concatenated_strings(
                 _ => unreachable!("Unexpected non-string literal."),
             }
         }
-        return Ok(Expr::from(ast::ExprStringLiteral {
-            value: ast::StringLiteralValue::concatenated(values),
+        return Ok(Expr::from(ast::ExprString {
+            value: ast::StringExprValue::concatenated(values),
             range,
         }));
     }
@@ -395,13 +395,13 @@ pub(crate) fn concatenated_strings(
     for string in strings {
         match string {
             StringType::FString(fstring) => parts.push(ast::FStringPart::FString(fstring)),
-            StringType::Str(string) => parts.push(ast::FStringPart::Literal(string)),
+            StringType::Str(string) => parts.push(ast::FStringPart::String(string)),
             StringType::Bytes(_) => unreachable!("Unexpected bytes literal."),
         }
     }
 
     Ok(ast::ExprFString {
-        value: ast::FStringValue::concatenated(parts),
+        value: ast::FStringExprValue::concatenated(parts),
         range,
     }
     .into())

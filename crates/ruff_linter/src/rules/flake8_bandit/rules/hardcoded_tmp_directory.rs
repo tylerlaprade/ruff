@@ -54,7 +54,7 @@ impl Violation for HardcodedTempFile {
 /// S108
 pub(crate) fn hardcoded_tmp_directory(checker: &mut Checker, string: StringLike) {
     let value = match string {
-        StringLike::StringLiteral(ast::ExprStringLiteral { value, .. }) => value.to_str(),
+        StringLike::StringLiteral(ast::ExprString { value, .. }) => value.to_str(),
         StringLike::FStringLiteral(ast::FStringLiteralElement { value, .. }) => value,
         StringLike::BytesLiteral(_) => return,
     };

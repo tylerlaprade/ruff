@@ -223,7 +223,7 @@ fn clean_params_dictionary(right: &Expr, locator: &Locator, stylist: &Stylist) -
         for (key, value) in keys.iter().zip(values.iter()) {
             match key {
                 Some(key) => {
-                    if let Expr::StringLiteral(ast::ExprStringLiteral {
+                    if let Expr::String(ast::ExprString {
                         value: key_string, ..
                     }) = key
                     {
@@ -416,8 +416,8 @@ pub(crate) fn printf_string_formatting(checker: &mut Checker, expr: &Expr, right
 
     // Parse the parameters.
     let params_string = match right {
-        Expr::StringLiteral(_)
-        | Expr::BytesLiteral(_)
+        Expr::String(_)
+        | Expr::Bytes(_)
         | Expr::NumberLiteral(_)
         | Expr::BooleanLiteral(_)
         | Expr::NoneLiteral(_)

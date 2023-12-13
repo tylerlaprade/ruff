@@ -2,7 +2,7 @@ use std::hash::BuildHasherDefault;
 
 use ruff_diagnostics::{Diagnostic, Violation};
 use ruff_macros::{derive_message_formats, violation};
-use ruff_python_ast::{Arguments, Expr, ExprCall, ExprDict, ExprStringLiteral};
+use ruff_python_ast::{Arguments, Expr, ExprCall, ExprDict, ExprString};
 use ruff_text_size::Ranged;
 use rustc_hash::FxHashSet;
 
@@ -59,7 +59,7 @@ pub(crate) fn repeated_keyword_argument(checker: &mut Checker, call: &ExprCall) 
         } else if let Expr::Dict(ExprDict { keys, .. }) = &keyword.value {
             // Ex) `func(**{"a": 1, "a": 2})`
             for key in keys.iter().flatten() {
-                if let Expr::StringLiteral(ExprStringLiteral { value, .. }) = key {
+                if let Expr::String(ExprString { value, .. }) = key {
                     if !seen.insert(value.to_str()) {
                         checker.diagnostics.push(Diagnostic::new(
                             RepeatedKeywordArgument {

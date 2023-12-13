@@ -81,12 +81,12 @@ pub(crate) fn all_with_model_form(
                     continue;
                 }
                 match value.as_ref() {
-                    Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+                    Expr::String(ast::ExprString { value, .. }) => {
                         if value == "__all__" {
                             return Some(Diagnostic::new(DjangoAllWithModelForm, element.range()));
                         }
                     }
-                    Expr::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => {
+                    Expr::Bytes(ast::ExprBytes { value, .. }) => {
                         if value == "__all__".as_bytes() {
                             return Some(Diagnostic::new(DjangoAllWithModelForm, element.range()));
                         }

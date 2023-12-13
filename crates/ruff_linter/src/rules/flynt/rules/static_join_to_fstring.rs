@@ -66,7 +66,7 @@ fn build_fstring(joiner: &str, joinees: &[Expr]) -> Option<Expr> {
             value: joinees
                 .iter()
                 .filter_map(|expr| {
-                    if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = expr {
+                    if let Expr::String(ast::ExprString { value, .. }) = expr {
                         Some(value.to_str())
                     } else {
                         None

@@ -128,8 +128,7 @@ pub(crate) fn logging_call(checker: &mut Checker, call: &ast::ExprCall) {
         _ => return,
     };
 
-    let Some(Expr::StringLiteral(ast::ExprStringLiteral { value, .. })) =
-        call.arguments.find_positional(0)
+    let Some(Expr::String(ast::ExprString { value, .. })) = call.arguments.find_positional(0)
     else {
         return;
     };

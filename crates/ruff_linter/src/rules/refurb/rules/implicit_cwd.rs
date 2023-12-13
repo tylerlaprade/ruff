@@ -63,7 +63,7 @@ pub(crate) fn no_implicit_cwd(checker: &mut Checker, call: &ExprCall) {
         [] => {}
         // Ex) `Path(".").resolve()`
         [arg] => {
-            let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = arg else {
+            let Expr::String(ast::ExprString { value, .. }) = arg else {
                 return;
             };
             if !matches!(value.to_str(), "" | ".") {

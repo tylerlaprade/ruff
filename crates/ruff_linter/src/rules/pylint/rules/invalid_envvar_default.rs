@@ -73,7 +73,7 @@ fn is_valid_default(expr: &Expr) -> bool {
     // Otherwise, the default must be a string or `None`.
     matches!(
         expr,
-        Expr::StringLiteral(_) | Expr::NoneLiteral(_) | Expr::FString(_)
+        Expr::String(_) | Expr::NoneLiteral(_) | Expr::FString(_)
     )
 }
 

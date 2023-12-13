@@ -361,7 +361,7 @@ pub(crate) fn expression(expr: &Expr, checker: &mut Checker) {
             ]) {
                 if let Expr::Attribute(ast::ExprAttribute { value, attr, .. }) = func.as_ref() {
                     let attr = attr.as_str();
-                    if let Expr::StringLiteral(ast::ExprStringLiteral {
+                    if let Expr::String(ast::ExprString {
                         value: string_value,
                         ..
                     }) = value.as_ref()
@@ -1007,7 +1007,7 @@ pub(crate) fn expression(expr: &Expr, checker: &mut Checker) {
                 flake8_bandit::rules::hardcoded_sql_expression(checker, expr);
             }
             if checker.enabled(Rule::UnicodeKindPrefix) {
-                for string_literal in value.literals() {
+                for string_literal in value.strings() {
                     pyupgrade::rules::unicode_kind_prefix(checker, string_literal);
                 }
             }
@@ -1027,7 +1027,7 @@ pub(crate) fn expression(expr: &Expr, checker: &mut Checker) {
             right,
             range: _,
         }) => {
-            if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = left.as_ref() {
+            if let Expr::String(ast::ExprString { value, .. }) = left.as_ref() {
                 if checker.any_enabled(&[
                     Rule::PercentFormatInvalidFormat,
                     Rule::PercentFormatExpectedMapping,
@@ -1275,7 +1275,7 @@ pub(crate) fn expression(expr: &Expr, checker: &mut Checker) {
                 refurb::rules::math_constant(checker, number_literal);
             }
         }
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+        Expr::String(ast::ExprString { value, .. }) => {
             if checker.enabled(Rule::UnicodeKindPrefix) {
                 for string_part in value {
                     pyupgrade::rules::unicode_kind_prefix(checker, string_part);

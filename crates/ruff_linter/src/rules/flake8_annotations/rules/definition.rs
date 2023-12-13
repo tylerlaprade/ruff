@@ -505,7 +505,7 @@ fn check_dynamically_typed<F>(
 ) where
     F: FnOnce() -> String,
 {
-    if let Expr::StringLiteral(ast::ExprStringLiteral { range, value }) = annotation {
+    if let Expr::String(ast::ExprString { range, value }) = annotation {
         // Quoted annotations
         if let Ok((parsed_annotation, _)) =
             parse_type_annotation(value.to_str(), *range, checker.locator().contents())
@@ -541,10 +541,7 @@ fn is_empty_body(body: &[Stmt]) -> bool {
     body.iter().all(|stmt| match stmt {
         Stmt::Pass(_) => true,
         Stmt::Expr(ast::StmtExpr { value, range: _ }) => {
-            matches!(
-                value.as_ref(),
-                Expr::StringLiteral(_) | Expr::EllipsisLiteral(_)
-            )
+            matches!(value.as_ref(), Expr::String(_) | Expr::EllipsisLiteral(_))
         }
         _ => false,
     })

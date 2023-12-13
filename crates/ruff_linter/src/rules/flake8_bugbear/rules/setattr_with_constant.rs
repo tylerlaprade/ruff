@@ -80,7 +80,7 @@ pub(crate) fn setattr_with_constant(
     if obj.is_starred_expr() {
         return;
     }
-    let Expr::StringLiteral(ast::ExprStringLiteral { value: name, .. }) = name else {
+    let Expr::String(ast::ExprString { value: name, .. }) = name else {
         return;
     };
     if !is_identifier(name.to_str()) {

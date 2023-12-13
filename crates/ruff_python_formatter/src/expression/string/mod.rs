@@ -4,9 +4,7 @@ use bitflags::bitflags;
 
 use ruff_formatter::{format_args, write};
 use ruff_python_ast::AnyNodeRef;
-use ruff_python_ast::{
-    self as ast, ExprBytesLiteral, ExprFString, ExprStringLiteral, ExpressionRef,
-};
+use ruff_python_ast::{self as ast, ExprBytes, ExprFString, ExprString, ExpressionRef};
 use ruff_source_file::Locator;
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 
@@ -28,16 +26,16 @@ enum Quoting {
 
 #[derive(Clone, Debug)]
 pub(super) enum AnyString<'a> {
-    String(&'a ExprStringLiteral),
-    Bytes(&'a ExprBytesLiteral),
+    String(&'a ExprString),
+    Bytes(&'a ExprBytes),
     FString(&'a ExprFString),
 }
 
 impl<'a> AnyString<'a> {
     pub(crate) fn from_expression(expression: &'a Expr) -> Option<AnyString<'a>> {
         match expression {
-            Expr::StringLiteral(string) => Some(AnyString::String(string)),
-            Expr::BytesLiteral(bytes) => Some(AnyString::Bytes(bytes)),
+            Expr::String(string) => Some(AnyString::String(string)),
+            Expr::Bytes(bytes) => Some(AnyString::Bytes(bytes)),
             Expr::FString(fstring) => Some(AnyString::FString(fstring)),
             _ => None,
         }
@@ -77,24 +75,24 @@ impl<'a> AnyString<'a> {
     /// Returns `true` if the string is implicitly concatenated.
     pub(super) fn is_implicit_concatenated(&self) -> bool {
         match self {
-            Self::String(ExprStringLiteral { value, .. }) => value.is_implicit_concatenated(),
-            Self::Bytes(ExprBytesLiteral { value, .. }) => value.is_implicit_concatenated(),
+            Self::String(ExprString { value, .. }) => value.is_implicit_concatenated(),
+            Self::Bytes(ExprBytes { value, .. }) => value.is_implicit_concatenated(),
             Self::FString(ExprFString { value, .. }) => value.is_implicit_concatenated(),
         }
     }
 
     fn parts(&self) -> Vec<AnyStringPart<'a>> {
         match self {
-            Self::String(ExprStringLiteral { value, .. }) => {
+            Self::String(ExprString { value, .. }) => {
                 value.iter().map(AnyStringPart::String).collect()
             }
-            Self::Bytes(ExprBytesLiteral { value, .. }) => {
+            Self::Bytes(ExprBytes { value, .. }) => {
                 value.iter().map(AnyStringPart::Bytes).collect()
             }
             Self::FString(ExprFString { value, .. }) => value
                 .iter()
                 .map(|f_string_part| match f_string_part {
-                    ast::FStringPart::Literal(string_literal) => {
+                    ast::FStringPart::String(string_literal) => {
                         AnyStringPart::String(string_literal)
                     }
                     ast::FStringPart::FString(f_string) => AnyStringPart::FString(f_string),

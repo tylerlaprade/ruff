@@ -97,8 +97,8 @@ impl FormatRule<Expr, PyFormatContext<'_>> for FormatExpr {
             Expr::Compare(expr) => expr.format().fmt(f),
             Expr::Call(expr) => expr.format().fmt(f),
             Expr::FString(expr) => expr.format().fmt(f),
-            Expr::StringLiteral(expr) => expr.format().fmt(f),
-            Expr::BytesLiteral(expr) => expr.format().fmt(f),
+            Expr::String(expr) => expr.format().fmt(f),
+            Expr::Bytes(expr) => expr.format().fmt(f),
             Expr::NumberLiteral(expr) => expr.format().fmt(f),
             Expr::BooleanLiteral(expr) => expr.format().fmt(f),
             Expr::NoneLiteral(expr) => expr.format().fmt(f),
@@ -285,8 +285,8 @@ fn format_with_parentheses_comments(
         Expr::Compare(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
         Expr::Call(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
         Expr::FString(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
-        Expr::StringLiteral(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
-        Expr::BytesLiteral(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
+        Expr::String(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
+        Expr::Bytes(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
         Expr::NumberLiteral(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
         Expr::BooleanLiteral(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
         Expr::NoneLiteral(expr) => FormatNodeRule::fmt_fields(expr.format().rule(), expr, f),
@@ -486,8 +486,8 @@ impl NeedsParentheses for Expr {
             Expr::Compare(expr) => expr.needs_parentheses(parent, context),
             Expr::Call(expr) => expr.needs_parentheses(parent, context),
             Expr::FString(expr) => expr.needs_parentheses(parent, context),
-            Expr::StringLiteral(expr) => expr.needs_parentheses(parent, context),
-            Expr::BytesLiteral(expr) => expr.needs_parentheses(parent, context),
+            Expr::String(expr) => expr.needs_parentheses(parent, context),
+            Expr::Bytes(expr) => expr.needs_parentheses(parent, context),
             Expr::NumberLiteral(expr) => expr.needs_parentheses(parent, context),
             Expr::BooleanLiteral(expr) => expr.needs_parentheses(parent, context),
             Expr::NoneLiteral(expr) => expr.needs_parentheses(parent, context),
@@ -715,14 +715,10 @@ impl<'input> CanOmitOptionalParenthesesVisitor<'input> {
                 return;
             }
 
-            Expr::StringLiteral(ast::ExprStringLiteral { value, .. })
-                if value.is_implicit_concatenated() =>
-            {
+            Expr::String(ast::ExprString { value, .. }) if value.is_implicit_concatenated() => {
                 self.update_max_precedence(OperatorPrecedence::String);
             }
-            Expr::BytesLiteral(ast::ExprBytesLiteral { value, .. })
-                if value.is_implicit_concatenated() =>
-            {
+            Expr::Bytes(ast::ExprBytes { value, .. }) if value.is_implicit_concatenated() => {
                 self.update_max_precedence(OperatorPrecedence::String);
             }
             Expr::FString(ast::ExprFString { value, .. }) if value.is_implicit_concatenated() => {
@@ -743,8 +739,8 @@ impl<'input> CanOmitOptionalParenthesesVisitor<'input> {
             | Expr::NamedExpr(_)
             | Expr::GeneratorExp(_)
             | Expr::FString(_)
-            | Expr::StringLiteral(_)
-            | Expr::BytesLiteral(_)
+            | Expr::String(_)
+            | Expr::Bytes(_)
             | Expr::NumberLiteral(_)
             | Expr::BooleanLiteral(_)
             | Expr::NoneLiteral(_)
@@ -1099,8 +1095,8 @@ pub(crate) fn is_expression_huggable(expr: &Expr, context: &PyFormatContext) -> 
         | Expr::Name(_)
         | Expr::Slice(_)
         | Expr::IpyEscapeCommand(_)
-        | Expr::StringLiteral(_)
-        | Expr::BytesLiteral(_)
+        | Expr::String(_)
+        | Expr::Bytes(_)
         | Expr::NumberLiteral(_)
         | Expr::BooleanLiteral(_)
         | Expr::NoneLiteral(_)

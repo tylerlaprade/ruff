@@ -71,7 +71,7 @@ pub(crate) fn redundant_open_modes(checker: &mut Checker, call: &ast::ExprCall) 
         None => {
             if !call.arguments.is_empty() {
                 if let Some(keyword) = call.arguments.find_keyword(MODE_KEYWORD_ARGUMENT) {
-                    if let Expr::StringLiteral(ast::ExprStringLiteral {
+                    if let Expr::String(ast::ExprString {
                         value: mode_param_value,
                         ..
                     }) = &keyword.value
@@ -90,7 +90,7 @@ pub(crate) fn redundant_open_modes(checker: &mut Checker, call: &ast::ExprCall) 
             }
         }
         Some(mode_param) => {
-            if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = &mode_param {
+            if let Expr::String(ast::ExprString { value, .. }) = &mode_param {
                 if let Ok(mode) = OpenMode::from_str(value.to_str()) {
                     checker.diagnostics.push(create_check(
                         call,

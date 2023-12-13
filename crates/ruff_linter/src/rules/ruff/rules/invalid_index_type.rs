@@ -65,8 +65,8 @@ pub(crate) fn invalid_index_type(checker: &mut Checker, expr: &ExprSubscript) {
             | Expr::ListComp(_)
             | Expr::Tuple(_)
             | Expr::FString(_)
-            | Expr::StringLiteral(_)
-            | Expr::BytesLiteral(_)
+            | Expr::String(_)
+            | Expr::Bytes(_)
     ) {
         return;
     }
@@ -197,8 +197,8 @@ impl fmt::Display for CheckableExprType {
 impl CheckableExprType {
     fn try_from(expr: &Expr) -> Option<Self> {
         match expr {
-            Expr::StringLiteral(_) => Some(Self::StringLiteral),
-            Expr::BytesLiteral(_) => Some(Self::BytesLiteral),
+            Expr::String(_) => Some(Self::StringLiteral),
+            Expr::Bytes(_) => Some(Self::BytesLiteral),
             Expr::NumberLiteral(ExprNumberLiteral { value, .. }) => match value {
                 Number::Int(_) => Some(Self::IntLiteral),
                 Number::Float(_) => Some(Self::FloatLiteral),

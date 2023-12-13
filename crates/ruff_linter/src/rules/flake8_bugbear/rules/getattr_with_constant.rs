@@ -66,7 +66,7 @@ pub(crate) fn getattr_with_constant(
     if obj.is_starred_expr() {
         return;
     }
-    let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = arg else {
+    let Expr::String(ast::ExprString { value, .. }) = arg else {
         return;
     };
     if !is_identifier(value.to_str()) {

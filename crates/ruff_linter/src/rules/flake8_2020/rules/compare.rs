@@ -294,7 +294,7 @@ pub(crate) fn compare(checker: &mut Checker, left: &Expr, ops: &[CmpOp], compara
     if is_sys(left, "version", checker.semantic()) {
         if let (
             [CmpOp::Lt | CmpOp::LtE | CmpOp::Gt | CmpOp::GtE],
-            [Expr::StringLiteral(ast::ExprStringLiteral { value, .. })],
+            [Expr::String(ast::ExprString { value, .. })],
         ) = (ops, comparators)
         {
             if value.len() == 1 {

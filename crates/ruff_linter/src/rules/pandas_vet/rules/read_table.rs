@@ -51,7 +51,7 @@ pub(crate) fn use_of_read_table(checker: &mut Checker, call: &ast::ExprCall) {
         .resolve_call_path(&call.func)
         .is_some_and(|call_path| matches!(call_path.as_slice(), ["pandas", "read_table"]))
     {
-        if let Some(Expr::StringLiteral(ast::ExprStringLiteral { value, .. })) = call
+        if let Some(Expr::String(ast::ExprString { value, .. })) = call
             .arguments
             .find_keyword("sep")
             .map(|keyword| &keyword.value)

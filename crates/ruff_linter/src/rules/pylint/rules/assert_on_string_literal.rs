@@ -45,7 +45,7 @@ impl Violation for AssertOnStringLiteral {
 /// PLW0129
 pub(crate) fn assert_on_string_literal(checker: &mut Checker, test: &Expr) {
     match test {
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+        Expr::String(ast::ExprString { value, .. }) => {
             checker.diagnostics.push(Diagnostic::new(
                 AssertOnStringLiteral {
                     kind: if value.is_empty() {
@@ -57,7 +57,7 @@ pub(crate) fn assert_on_string_literal(checker: &mut Checker, test: &Expr) {
                 test.range(),
             ));
         }
-        Expr::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => {
+        Expr::Bytes(ast::ExprBytes { value, .. }) => {
             checker.diagnostics.push(Diagnostic::new(
                 AssertOnStringLiteral {
                     kind: if value.is_empty() {
@@ -71,7 +71,7 @@ pub(crate) fn assert_on_string_literal(checker: &mut Checker, test: &Expr) {
         }
         Expr::FString(ast::ExprFString { value, .. }) => {
             let kind = if value.iter().all(|f_string_part| match f_string_part {
-                ast::FStringPart::Literal(literal) => literal.is_empty(),
+                ast::FStringPart::String(literal) => literal.is_empty(),
                 ast::FStringPart::FString(f_string) => {
                     f_string.elements.iter().all(|element| match element {
                         ast::FStringElement::Literal(ast::FStringLiteralElement {
@@ -83,7 +83,7 @@ pub(crate) fn assert_on_string_literal(checker: &mut Checker, test: &Expr) {
             }) {
                 Kind::Empty
             } else if value.iter().any(|f_string_part| match f_string_part {
-                ast::FStringPart::Literal(literal) => !literal.is_empty(),
+                ast::FStringPart::String(literal) => !literal.is_empty(),
                 ast::FStringPart::FString(f_string) => {
                     f_string.elements.iter().any(|element| match element {
                         ast::FStringElement::Literal(ast::FStringLiteralElement {

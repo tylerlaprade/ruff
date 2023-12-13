@@ -145,7 +145,7 @@ pub(crate) fn use_capital_environment_variables(checker: &mut Checker, expr: &Ex
     let Some(arg) = args.get(0) else {
         return;
     };
-    let Expr::StringLiteral(ast::ExprStringLiteral { value: env_var, .. }) = arg else {
+    let Expr::String(ast::ExprString { value: env_var, .. }) = arg else {
         return;
     };
     if !checker
@@ -197,7 +197,7 @@ fn check_os_environ_subscript(checker: &mut Checker, expr: &Expr) {
     if id != "os" || attr != "environ" {
         return;
     }
-    let Expr::StringLiteral(ast::ExprStringLiteral { value: env_var, .. }) = slice.as_ref() else {
+    let Expr::String(ast::ExprString { value: env_var, .. }) = slice.as_ref() else {
         return;
     };
 

@@ -83,7 +83,7 @@ pub(crate) fn compare_to_empty_string(
         if let Ok(op) = EmptyStringCmpOp::try_from(op) {
             if std::mem::take(&mut first) {
                 // Check the left-most expression.
-                if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = &lhs {
+                if let Expr::String(ast::ExprString { value, .. }) = &lhs {
                     if value.is_empty() {
                         let literal = checker.generator().expr(lhs);
                         let expr = checker.generator().expr(rhs);
@@ -101,7 +101,7 @@ pub(crate) fn compare_to_empty_string(
             }
 
             // Check all right-hand expressions.
-            if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = &rhs {
+            if let Expr::String(ast::ExprString { value, .. }) = &rhs {
                 if value.is_empty() {
                     let expr = checker.generator().expr(lhs);
                     let literal = checker.generator().expr(rhs);

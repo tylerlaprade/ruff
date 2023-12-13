@@ -50,8 +50,8 @@ pub(crate) fn string_or_bytes_too_long(checker: &mut Checker, string: StringLike
     }
 
     let length = match string {
-        StringLike::StringLiteral(ast::ExprStringLiteral { value, .. }) => value.chars().count(),
-        StringLike::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => value.len(),
+        StringLike::StringLiteral(ast::ExprString { value, .. }) => value.chars().count(),
+        StringLike::BytesLiteral(ast::ExprBytes { value, .. }) => value.len(),
         StringLike::FStringLiteral(ast::FStringLiteralElement { value, .. }) => {
             value.chars().count()
         }

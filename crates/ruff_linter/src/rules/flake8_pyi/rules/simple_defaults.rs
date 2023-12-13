@@ -283,8 +283,8 @@ fn is_valid_default_value_with_annotation(
     semantic: &SemanticModel,
 ) -> bool {
     match default {
-        Expr::StringLiteral(_)
-        | Expr::BytesLiteral(_)
+        Expr::String(_)
+        | Expr::Bytes(_)
         | Expr::NumberLiteral(_)
         | Expr::BooleanLiteral(_)
         | Expr::NoneLiteral(_)

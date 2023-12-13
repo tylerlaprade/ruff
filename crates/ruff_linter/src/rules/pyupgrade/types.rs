@@ -15,8 +15,8 @@ impl Primitive {
     pub(crate) const fn from_expr(expr: &Expr) -> Option<Self> {
         match expr {
             Expr::BooleanLiteral(_) => Some(Self::Bool),
-            Expr::StringLiteral(_) => Some(Self::Str),
-            Expr::BytesLiteral(_) => Some(Self::Bytes),
+            Expr::String(_) => Some(Self::Str),
+            Expr::Bytes(_) => Some(Self::Bytes),
             Expr::NumberLiteral(ExprNumberLiteral { value, .. }) => match value {
                 Number::Int(_) => Some(Self::Int),
                 Number::Float(_) => Some(Self::Float),

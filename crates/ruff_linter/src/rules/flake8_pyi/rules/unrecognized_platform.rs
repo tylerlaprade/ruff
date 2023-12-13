@@ -123,7 +123,7 @@ pub(crate) fn unrecognized_platform(checker: &mut Checker, test: &Expr) {
         return;
     }
 
-    if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = right {
+    if let Expr::String(ast::ExprString { value, .. }) = right {
         // Other values are possible but we don't need them right now.
         // This protects against typos.
         if checker.enabled(Rule::UnrecognizedPlatformName) {

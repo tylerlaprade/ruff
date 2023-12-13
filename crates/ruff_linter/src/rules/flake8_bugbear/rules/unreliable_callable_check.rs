@@ -67,7 +67,7 @@ pub(crate) fn unreliable_callable_check(
     let [obj, attr, ..] = args else {
         return;
     };
-    let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = attr else {
+    let Expr::String(ast::ExprString { value, .. }) = attr else {
         return;
     };
     if value != "__call__" {

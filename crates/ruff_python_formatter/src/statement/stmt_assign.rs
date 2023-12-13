@@ -704,10 +704,10 @@ fn should_inline_comments(
         Expr::Name(_) | Expr::NoneLiteral(_) | Expr::NumberLiteral(_) | Expr::BooleanLiteral(_) => {
             true
         }
-        Expr::StringLiteral(string) => {
+        Expr::String(string) => {
             string.needs_parentheses(parent, context) == OptionalParentheses::BestFit
         }
-        Expr::BytesLiteral(bytes) => {
+        Expr::Bytes(bytes) => {
             bytes.needs_parentheses(parent, context) == OptionalParentheses::BestFit
         }
         Expr::FString(fstring) => {

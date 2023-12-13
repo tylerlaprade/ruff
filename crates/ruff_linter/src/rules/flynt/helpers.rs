@@ -51,7 +51,7 @@ fn is_simple_callee(func: &Expr) -> bool {
 /// Convert an expression to a f-string element (if it looks like a good idea).
 pub(super) fn to_f_string_element(expr: &Expr) -> Option<ast::FStringElement> {
     match expr {
-        Expr::StringLiteral(ast::ExprStringLiteral { value, range }) => {
+        Expr::String(ast::ExprString { value, range }) => {
             Some(ast::FStringElement::Literal(ast::FStringLiteralElement {
                 value: value.to_string(),
                 range: *range,

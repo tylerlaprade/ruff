@@ -39,7 +39,7 @@ impl Violation for HardcodedBindAllInterfaces {
 /// S104
 pub(crate) fn hardcoded_bind_all_interfaces(checker: &mut Checker, string: StringLike) {
     let is_bind_all_interface = match string {
-        StringLike::StringLiteral(ast::ExprStringLiteral { value, .. }) => value == "0.0.0.0",
+        StringLike::StringLiteral(ast::ExprString { value, .. }) => value == "0.0.0.0",
         StringLike::FStringLiteral(ast::FStringLiteralElement { value, .. }) => value == "0.0.0.0",
         StringLike::BytesLiteral(_) => return,
     };

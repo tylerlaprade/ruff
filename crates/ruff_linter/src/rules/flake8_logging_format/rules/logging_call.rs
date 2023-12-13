@@ -92,7 +92,7 @@ fn check_log_record_attr_clash(checker: &mut Checker, extra: &Keyword) {
         Expr::Dict(ast::ExprDict { keys, .. }) => {
             for key in keys {
                 if let Some(key) = &key {
-                    if let Expr::StringLiteral(ast::ExprStringLiteral { value: attr, .. }) = key {
+                    if let Expr::String(ast::ExprString { value: attr, .. }) = key {
                         if is_reserved_attr(attr.to_str()) {
                             checker.diagnostics.push(Diagnostic::new(
                                 LoggingExtraAttrClash(attr.to_string()),

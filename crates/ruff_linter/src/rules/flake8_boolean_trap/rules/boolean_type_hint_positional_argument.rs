@@ -166,7 +166,7 @@ fn match_annotation_to_literal_bool(annotation: &Expr) -> bool {
         // Ex) `True`
         Expr::Name(name) => &name.id == "bool",
         // Ex) `"True"`
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => value == "bool",
+        Expr::String(ast::ExprString { value, .. }) => value == "bool",
         _ => false,
     }
 }
@@ -178,7 +178,7 @@ fn match_annotation_to_complex_bool(annotation: &Expr, semantic: &SemanticModel)
         // Ex) `bool`
         Expr::Name(name) => &name.id == "bool",
         // Ex) `"bool"`
-        Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) => value == "bool",
+        Expr::String(ast::ExprString { value, .. }) => value == "bool",
         // Ex) `bool | int`
         Expr::BinOp(ast::ExprBinOp {
             left,

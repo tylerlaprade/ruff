@@ -1,6 +1,6 @@
 use ruff_formatter::FormatRuleWithOptions;
 use ruff_python_ast::AnyNodeRef;
-use ruff_python_ast::ExprStringLiteral;
+use ruff_python_ast::ExprString;
 use ruff_text_size::{Ranged, TextLen, TextRange};
 
 use crate::comments::SourceComment;
@@ -15,7 +15,7 @@ pub struct FormatExprStringLiteral {
     layout: StringLayout,
 }
 
-impl FormatRuleWithOptions<ExprStringLiteral, PyFormatContext<'_>> for FormatExprStringLiteral {
+impl FormatRuleWithOptions<ExprString, PyFormatContext<'_>> for FormatExprStringLiteral {
     type Options = StringLayout;
 
     fn with_options(mut self, options: Self::Options) -> Self {
@@ -24,8 +24,8 @@ impl FormatRuleWithOptions<ExprStringLiteral, PyFormatContext<'_>> for FormatExp
     }
 }
 
-impl FormatNodeRule<ExprStringLiteral> for FormatExprStringLiteral {
-    fn fmt_fields(&self, item: &ExprStringLiteral, f: &mut PyFormatter) -> FormatResult<()> {
+impl FormatNodeRule<ExprString> for FormatExprStringLiteral {
+    fn fmt_fields(&self, item: &ExprString, f: &mut PyFormatter) -> FormatResult<()> {
         FormatString::new(&AnyString::String(item))
             .with_layout(self.layout)
             .fmt(f)
@@ -40,7 +40,7 @@ impl FormatNodeRule<ExprStringLiteral> for FormatExprStringLiteral {
     }
 }
 
-impl NeedsParentheses for ExprStringLiteral {
+impl NeedsParentheses for ExprString {
     fn needs_parentheses(
         &self,
         _parent: AnyNodeRef,

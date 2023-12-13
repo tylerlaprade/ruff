@@ -192,7 +192,7 @@ pub(crate) fn print_empty_string(checker: &mut Checker, call: &ast::ExprCall) {
 fn is_empty_string(expr: &Expr) -> bool {
     matches!(
         expr,
-        Expr::StringLiteral(ast::ExprStringLiteral {
+        Expr::String(ast::ExprString {
             value,
             ..
         }) if value.is_empty()

@@ -108,7 +108,7 @@ impl<'a> TypingTarget<'a> {
                 ..
             }) => Some(TypingTarget::PEP604Union(left, right)),
             Expr::NoneLiteral(_) => Some(TypingTarget::None),
-            Expr::StringLiteral(ast::ExprStringLiteral { value, range }) => {
+            Expr::String(ast::ExprString { value, range }) => {
                 parse_type_annotation(value.to_str(), *range, locator.contents())
                     .map_or(None, |(expr, _)| Some(TypingTarget::ForwardReference(expr)))
             }

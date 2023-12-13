@@ -26,12 +26,11 @@ use crate::{
     Mode,
 };
 use ruff_python_ast::{
-    Expr, ExprAttribute, ExprAwait, ExprBinOp, ExprBoolOp, ExprBooleanLiteral, ExprBytesLiteral,
-    ExprCall, ExprCompare, ExprDict, ExprDictComp, ExprEllipsisLiteral, ExprFString,
-    ExprGeneratorExp, ExprIfExp, ExprIpyEscapeCommand, ExprLambda, ExprList, ExprListComp,
-    ExprName, ExprNamedExpr, ExprNoneLiteral, ExprNumberLiteral, ExprSet, ExprSetComp, ExprSlice,
-    ExprStarred, ExprStringLiteral, ExprSubscript, ExprTuple, ExprUnaryOp, ExprYield,
-    ExprYieldFrom, Mod, ModModule, Suite,
+    Expr, ExprAttribute, ExprAwait, ExprBinOp, ExprBoolOp, ExprBooleanLiteral, ExprBytes, ExprCall,
+    ExprCompare, ExprDict, ExprDictComp, ExprEllipsisLiteral, ExprFString, ExprGeneratorExp,
+    ExprIfExp, ExprIpyEscapeCommand, ExprLambda, ExprList, ExprListComp, ExprName, ExprNamedExpr,
+    ExprNoneLiteral, ExprNumberLiteral, ExprSet, ExprSetComp, ExprSlice, ExprStarred, ExprString,
+    ExprSubscript, ExprTuple, ExprUnaryOp, ExprYield, ExprYieldFrom, Mod, ModModule, Suite,
 };
 
 /// Parse a full Python program usually consisting of multiple lines.
@@ -553,14 +552,14 @@ impl From<ExprFString> for ParenthesizedExpr {
         Expr::FString(payload).into()
     }
 }
-impl From<ExprStringLiteral> for ParenthesizedExpr {
-    fn from(payload: ExprStringLiteral) -> Self {
-        Expr::StringLiteral(payload).into()
+impl From<ExprString> for ParenthesizedExpr {
+    fn from(payload: ExprString) -> Self {
+        Expr::String(payload).into()
     }
 }
-impl From<ExprBytesLiteral> for ParenthesizedExpr {
-    fn from(payload: ExprBytesLiteral) -> Self {
-        Expr::BytesLiteral(payload).into()
+impl From<ExprBytes> for ParenthesizedExpr {
+    fn from(payload: ExprBytes) -> Self {
+        Expr::Bytes(payload).into()
     }
 }
 impl From<ExprNumberLiteral> for ParenthesizedExpr {

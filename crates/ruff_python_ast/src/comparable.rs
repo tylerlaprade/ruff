@@ -582,10 +582,10 @@ impl<'a> From<ast::LiteralExpressionRef<'a>> for ComparableLiteral<'a> {
             ast::LiteralExpressionRef::BooleanLiteral(ast::ExprBooleanLiteral {
                 value, ..
             }) => Self::Bool(value),
-            ast::LiteralExpressionRef::StringLiteral(ast::ExprStringLiteral { value, .. }) => {
+            ast::LiteralExpressionRef::StringLiteral(ast::ExprString { value, .. }) => {
                 Self::Str(value.iter().map(Into::into).collect())
             }
-            ast::LiteralExpressionRef::BytesLiteral(ast::ExprBytesLiteral { value, .. }) => {
+            ast::LiteralExpressionRef::BytesLiteral(ast::ExprBytes { value, .. }) => {
                 Self::Bytes(value.iter().map(Into::into).collect())
             }
             ast::LiteralExpressionRef::NumberLiteral(ast::ExprNumberLiteral { value, .. }) => {
@@ -617,7 +617,7 @@ pub enum ComparableFStringPart<'a> {
 impl<'a> From<&'a ast::FStringPart> for ComparableFStringPart<'a> {
     fn from(f_string_part: &'a ast::FStringPart) -> Self {
         match f_string_part {
-            ast::FStringPart::Literal(string_literal) => Self::Literal(string_literal.into()),
+            ast::FStringPart::String(string_literal) => Self::Literal(string_literal.into()),
             ast::FStringPart::FString(f_string) => Self::FString(f_string.into()),
         }
     }
@@ -1015,12 +1015,12 @@ impl<'a> From<&'a ast::Expr> for ComparableExpr<'a> {
                     parts: value.iter().map(Into::into).collect(),
                 })
             }
-            ast::Expr::StringLiteral(ast::ExprStringLiteral { value, range: _ }) => {
+            ast::Expr::String(ast::ExprString { value, range: _ }) => {
                 Self::StringLiteral(ExprStringLiteral {
                     parts: value.iter().map(Into::into).collect(),
                 })
             }
-            ast::Expr::BytesLiteral(ast::ExprBytesLiteral { value, range: _ }) => {
+            ast::Expr::Bytes(ast::ExprBytes { value, range: _ }) => {
                 Self::BytesLiteral(ExprBytesLiteral {
                     parts: value.iter().map(Into::into).collect(),
                 })

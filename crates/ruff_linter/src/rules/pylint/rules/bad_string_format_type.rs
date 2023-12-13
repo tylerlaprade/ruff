@@ -124,7 +124,7 @@ fn equivalent(format: &CFormatSpec, value: &Expr) -> bool {
         ResolvedPythonType::Atom(atom) => {
             // Special case where `%c` allows single character strings to be formatted
             if format.format_char == 'c' {
-                if let Expr::StringLiteral(ast::ExprStringLiteral { value, .. }) = value {
+                if let Expr::String(ast::ExprString { value, .. }) = value {
                     let mut chars = value.chars();
                     if chars.next().is_some() && chars.next().is_none() {
                         return true;
@@ -197,7 +197,7 @@ fn is_valid_dict(
         let Some(key) = key else {
             return true;
         };
-        if let Expr::StringLiteral(ast::ExprStringLiteral {
+        if let Expr::String(ast::ExprString {
             value: mapping_key, ..
         }) = key
         {
