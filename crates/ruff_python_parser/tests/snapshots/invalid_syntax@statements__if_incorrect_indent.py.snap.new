@@ -1,0 +1,224 @@
+---
+source: crates/ruff_python_parser/tests/fixtures.rs
+assertion_line: 57
+input_file: crates/ruff_python_parser/resources/invalid/statements/if_incorrect_indent.py
+---
+## AST
+
+ ```
+Module(
+    ModModule {
+        range: 0..89,
+        body: [
+            If(
+                StmtIf {
+                    range: 0..89,
+                    test: BooleanLiteral(
+                        ExprBooleanLiteral {
+                            range: 3..7,
+                            value: true,
+                        },
+                    ),
+                    body: [
+                        Assign(
+                            StmtAssign {
+                                range: 13..19,
+                                targets: [
+                                    Name(
+                                        ExprName {
+                                            range: 13..14,
+                                            id: "a",
+                                            ctx: Store,
+                                        },
+                                    ),
+                                ],
+                                value: NumberLiteral(
+                                    ExprNumberLiteral {
+                                        range: 17..19,
+                                        value: Int(
+                                            10,
+                                        ),
+                                    },
+                                ),
+                            },
+                        ),
+                        Expr(
+                            StmtExpr {
+                                range: 20..20,
+                                value: Name(
+                                    ExprName {
+                                        range: 20..20,
+                                        id: "",
+                                        ctx: Load,
+                                    },
+                                ),
+                            },
+                        ),
+                        AugAssign(
+                            StmtAugAssign {
+                                range: 22..28,
+                                target: Name(
+                                    ExprName {
+                                        range: 22..23,
+                                        id: "a",
+                                        ctx: Store,
+                                    },
+                                ),
+                                op: Add,
+                                value: NumberLiteral(
+                                    ExprNumberLiteral {
+                                        range: 27..28,
+                                        value: Int(
+                                            1,
+                                        ),
+                                    },
+                                ),
+                            },
+                        ),
+                        Assign(
+                            StmtAssign {
+                                range: 33..39,
+                                targets: [
+                                    Name(
+                                        ExprName {
+                                            range: 33..34,
+                                            id: "a",
+                                            ctx: Store,
+                                        },
+                                    ),
+                                ],
+                                value: NumberLiteral(
+                                    ExprNumberLiteral {
+                                        range: 37..39,
+                                        value: Int(
+                                            20,
+                                        ),
+                                    },
+                                ),
+                            },
+                        ),
+                        If(
+                            StmtIf {
+                                range: 42..89,
+                                test: BooleanLiteral(
+                                    ExprBooleanLiteral {
+                                        range: 45..50,
+                                        value: false,
+                                    },
+                                ),
+                                body: [
+                                    Assign(
+                                        StmtAssign {
+                                            range: 56..62,
+                                            targets: [
+                                                Name(
+                                                    ExprName {
+                                                        range: 56..57,
+                                                        id: "a",
+                                                        ctx: Store,
+                                                    },
+                                                ),
+                                            ],
+                                            value: NumberLiteral(
+                                                ExprNumberLiteral {
+                                                    range: 60..62,
+                                                    value: Int(
+                                                        10,
+                                                    ),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    Assign(
+                                        StmtAssign {
+                                            range: 71..77,
+                                            targets: [
+                                                Name(
+                                                    ExprName {
+                                                        range: 71..72,
+                                                        id: "a",
+                                                        ctx: Store,
+                                                    },
+                                                ),
+                                            ],
+                                            value: NumberLiteral(
+                                                ExprNumberLiteral {
+                                                    range: 75..77,
+                                                    value: Int(
+                                                        20,
+                                                    ),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                    AugAssign(
+                                        StmtAugAssign {
+                                            range: 82..88,
+                                            target: Name(
+                                                ExprName {
+                                                    range: 82..83,
+                                                    id: "a",
+                                                    ctx: Store,
+                                                },
+                                            ),
+                                            op: Add,
+                                            value: NumberLiteral(
+                                                ExprNumberLiteral {
+                                                    range: 87..88,
+                                                    value: Int(
+                                                        1,
+                                                    ),
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                ],
+                                elif_else_clauses: [],
+                            },
+                        ),
+                    ],
+                    elif_else_clauses: [],
+                },
+            ),
+        ],
+    },
+)
+```
+## Errors
+
+  |
+1 | if True:
+2 |     a = 10
+3 |   a += 1
+  | ^^ Syntax Error: unindent does not match any outer indentation level
+4 |     a = 20
+  |
+
+
+  |
+1 | if True:
+2 |     a = 10
+3 |   a += 1
+  | ^^^ Syntax Error: use `;` to separate simple statements
+4 |     a = 20
+  |
+
+
+  |
+2 |     a = 10
+3 |   a += 1
+4 |     a = 20
+  |     ^ Syntax Error: indentation doesn't match previous indentation
+  |
+
+
+   |
+ 7 | if False:
+ 8 |     a = 10
+ 9 |         a = 20
+   |         ^ Syntax Error: indentation doesn't match previous indentation
+10 |     a += 1
+   |
+
+
+

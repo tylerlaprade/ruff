@@ -1,5 +1,7 @@
-use itertools::{Itertools, MultiPeek};
+use std::collections::VecDeque;
+use std::iter::FusedIterator;
 
+use crate::lexer::Lexer;
 use crate::{lexer::LexResult, token::Tok, Mode};
 
 /// An [`Iterator`] that transforms a token stream to accommodate soft keywords (namely, `match`
@@ -17,21 +19,15 @@ use crate::{lexer::LexResult, token::Tok, Mode};
 ///
 /// Handling soft keywords in this intermediary pass allows us to simplify both the lexer and
 /// `ruff_python_parser`, as neither of them need to be aware of soft keywords.
-pub struct SoftKeywordTransformer<I>
-where
-    I: Iterator<Item = LexResult>,
-{
-    underlying: MultiPeek<I>,
+pub struct SoftKeywordLexer<'source> {
+    underlying: PeekableLexer<'source>,
     position: Position,
 }
 
-impl<I> SoftKeywordTransformer<I>
-where
-    I: Iterator<Item = LexResult>,
-{
-    pub fn new(lexer: I, mode: Mode) -> Self {
+impl<'source> SoftKeywordLexer<'source> {
+    pub fn new(lexer: Lexer<'source>, mode: Mode) -> Self {
         Self {
-            underlying: lexer.multipeek(), // spell-checker:ignore multipeek
+            underlying: PeekableLexer::new(lexer),
             position: if mode == Mode::Expression {
                 Position::Other
             } else {
@@ -41,10 +37,7 @@ where
     }
 }
 
-impl<I> Iterator for SoftKeywordTransformer<I>
-where
-    I: Iterator<Item = LexResult>,
-{
+impl Iterator for SoftKeywordLexer<'_> {
     type Item = LexResult;
 
     #[inline]
@@ -222,3 +215,68 @@ enum Position {
     /// The lexer is some other location.
     Other,
 }
+
+struct PeekableLexer<'source> {
+    lexer: Lexer<'source>,
+    lookahead: VecDeque<LexResult>,
+    lookahead_index: usize,
+}
+
+impl<'source> PeekableLexer<'source> {
+    fn new(lexer: Lexer<'source>) -> Self {
+        Self {
+            lexer,
+            lookahead: VecDeque::new(),
+            lookahead_index: 0,
+        }
+    }
+
+    /// Peeks one token ahead.
+    ///
+    /// Calling the method multiple times works similar to `next` in that it peeks one token further ahead each time the function is called.
+    fn peek(&mut self) -> Option<&LexResult> {
+        let result = if self.lookahead_index < self.lookahead.len() {
+            &self.lookahead[self.lookahead_index]
+        } else if let Some(result) = self.lexer.next() {
+            self.lookahead.push_back(result);
+            self.lookahead.back().unwrap()
+        } else {
+            return None;
+        };
+
+        self.lookahead_index += 1;
+
+        Some(result)
+    }
+}
+
+impl Iterator for PeekableLexer<'_> {
+    type Item = LexResult;
+
+    /// Returns the next token. Resets the lookahead.
+    fn next(&mut self) -> Option<LexResult> {
+        // Reset the lookahead
+        self.lookahead_index = 0;
+
+        if let Some(result) = self.lookahead.pop_front() {
+            Some(result)
+        } else {
+            self.lexer.next()
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (low, hi) = self.lexer.size_hint();
+
+        let low = low.saturating_add(self.lookahead.len());
+
+        let hi = match hi {
+            Some(hi) => hi.checked_add(self.lookahead.len()),
+            None => None,
+        };
+
+        (low, hi)
+    }
+}
+
+impl FusedIterator for PeekableLexer<'_> {}

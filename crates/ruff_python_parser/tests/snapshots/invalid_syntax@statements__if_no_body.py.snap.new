@@ -1,0 +1,45 @@
+---
+source: crates/ruff_python_parser/tests/fixtures.rs
+assertion_line: 57
+input_file: crates/ruff_python_parser/resources/invalid/statements/if_no_body.py
+---
+## AST
+
+ ```
+Module(
+    ModModule {
+        range: 0..15,
+        body: [
+            If(
+                StmtIf {
+                    range: 0..10,
+                    test: BooleanLiteral(
+                        ExprBooleanLiteral {
+                            range: 3..7,
+                            value: true,
+                        },
+                    ),
+                    body: [],
+                    elif_else_clauses: [],
+                },
+            ),
+            Pass(
+                StmtPass {
+                    range: 10..14,
+                },
+            ),
+        ],
+    },
+)
+```
+## Errors
+
+  |
+1 | if True:
+2 | 
+3 | pass
+  | ^^^^ Syntax Error: expected an indented block after `if` statement
+  |
+
+
+

@@ -40,7 +40,7 @@ use crate::lexer::cursor::{Cursor, EOF_CHAR};
 use crate::lexer::fstring::{FStringContext, FStringContextFlags, FStrings};
 use crate::lexer::indentation::{Indentation, Indentations};
 use crate::{
-    soft_keywords::SoftKeywordTransformer,
+    soft_keywords::SoftKeywordLexer,
     string::FStringErrorType,
     token::{StringKind, Tok},
     Mode,
@@ -88,19 +88,16 @@ pub type LexResult = Result<Spanned, LexicalError>;
 /// }
 /// ```
 #[inline]
-pub fn lex(source: &str, mode: Mode) -> SoftKeywordTransformer<Lexer> {
-    SoftKeywordTransformer::new(Lexer::new(source, mode), mode)
+pub fn lex(source: &str, mode: Mode) -> SoftKeywordLexer {
+    SoftKeywordLexer::new(Lexer::new(source, mode), mode)
 }
 
-pub struct LexStartsAtIterator<I> {
+pub struct StartsAtLexer<'source> {
     start_offset: TextSize,
-    inner: I,
+    inner: SoftKeywordLexer<'source>,
 }
 
-impl<I> Iterator for LexStartsAtIterator<I>
-where
-    I: Iterator<Item = LexResult>,
-{
+impl Iterator for StartsAtLexer<'_> {
     type Item = LexResult;
 
     #[inline]
@@ -121,20 +118,12 @@ where
     }
 }
 
-impl<I> FusedIterator for LexStartsAtIterator<I> where I: Iterator<Item = LexResult> + FusedIterator {}
-impl<I> ExactSizeIterator for LexStartsAtIterator<I> where
-    I: Iterator<Item = LexResult> + ExactSizeIterator
-{
-}
+impl FusedIterator for StartsAtLexer<'_> {}
 
 /// Create a new lexer from a source string, starting at a given location.
 /// You probably want to use [`lex`] instead.
-pub fn lex_starts_at(
-    source: &str,
-    mode: Mode,
-    start_offset: TextSize,
-) -> LexStartsAtIterator<SoftKeywordTransformer<Lexer>> {
-    LexStartsAtIterator {
+pub fn lex_starts_at(source: &str, mode: Mode, start_offset: TextSize) -> StartsAtLexer {
+    StartsAtLexer {
         start_offset,
         inner: lex(source, mode),
     }

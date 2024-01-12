@@ -1,0 +1,35 @@
+---
+source: crates/ruff_python_parser/tests/fixtures.rs
+input_file: crates/ruff_python_parser/resources/valid/statement/if_statement.py
+---
+## AST
+
+ ```
+Module(
+    ModModule {
+        range: 0..43,
+        body: [
+            If(
+                StmtIf {
+                    range: 25..43,
+                    test: BooleanLiteral(
+                        ExprBooleanLiteral {
+                            range: 28..32,
+                            value: true,
+                        },
+                    ),
+                    body: [
+                        Pass(
+                            StmtPass {
+                                range: 38..42,
+                            },
+                        ),
+                    ],
+                    elif_else_clauses: [],
+                },
+            ),
+        ],
+    },
+)
+```
+
