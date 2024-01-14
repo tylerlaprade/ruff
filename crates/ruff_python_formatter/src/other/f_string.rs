@@ -1,9 +1,15 @@
+use ruff_formatter::write;
 use ruff_python_ast::FString;
 use ruff_text_size::Ranged;
 
 use crate::prelude::*;
 use crate::preview::is_hex_codes_in_unicode_sequences_enabled;
-use crate::string::{Quoting, StringPart};
+use crate::preview::is_pep_701_enabled;
+use crate::string::{
+    choose_quotes, Quoting, StringNormalizer, StringPart, StringPrefix, StringQuotes,
+};
+
+use super::f_string_element::FormatFStringElement;
 
 /// Formats an f-string which is part of a larger f-string expression.
 ///
@@ -25,27 +31,72 @@ impl<'a> FormatFString<'a> {
 impl Format<PyFormatContext<'_>> for FormatFString<'_> {
     fn fmt(&self, f: &mut PyFormatter) -> FormatResult<()> {
         let locator = f.context().locator();
+        let comments = f.context().comments().clone();
 
-        let result = StringPart::from_source(self.value.range(), &locator)
-            .normalize(
-                self.quoting,
-                &locator,
-                f.options().quote_style(),
-                f.context().docstring(),
-                is_hex_codes_in_unicode_sequences_enabled(f.context()),
-            )
-            .fmt(f);
+        if !is_pep_701_enabled(f.context()) {
+            let result = StringNormalizer::from_source(self.value.range(), &locator)
+                .normalize(
+                    self.quoting,
+                    &locator,
+                    f.options().quote_style(),
+                    f.context().docstring(),
+                    is_hex_codes_in_unicode_sequences_enabled(f.context()),
+                )
+                .fmt(f);
+            self.value.elements.iter().for_each(|value| {
+                comments.mark_verbatim_node_comments_formatted(value.into());
+            });
+            return result;
+        }
 
-        // TODO(dhruvmanila): With PEP 701, comments can be inside f-strings.
-        // This is to mark all of those comments as formatted but we need to
-        // figure out how to handle them. Note that this needs to be done only
-        // after the f-string is formatted, so only for all the non-formatted
-        // comments.
-        let comments = f.context().comments();
-        self.value.elements.iter().for_each(|value| {
-            comments.mark_verbatim_node_comments_formatted(value.into());
-        });
+        let string = StringPart::from_source(self.value.range(), &locator);
 
-        result
+        let quotes = choose_quotes(
+            &string,
+            &locator,
+            self.quoting,
+            f.options().quote_style(),
+            f.context().docstring(),
+        );
+
+        let context = FStringContext::new(string.prefix(), quotes);
+
+        // Starting prefix and quote
+        write!(f, [string.prefix(), quotes])?;
+
+        format_with(|f| {
+            f.join()
+                .entries(
+                    self.value
+                        .elements
+                        .iter()
+                        .map(|element| FormatFStringElement::new(element, context)),
+                )
+                .finish()
+        })
+        .fmt(f)?;
+
+        // Ending quote
+        quotes.fmt(f)
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct FStringContext {
+    prefix: StringPrefix,
+    quotes: StringQuotes,
+}
+
+impl FStringContext {
+    const fn new(prefix: StringPrefix, quotes: StringQuotes) -> Self {
+        Self { prefix, quotes }
+    }
+
+    pub(crate) const fn quotes(self) -> StringQuotes {
+        self.quotes
+    }
+
+    pub(crate) const fn prefix(self) -> StringPrefix {
+        self.prefix
     }
 }

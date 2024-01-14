@@ -291,6 +291,30 @@ impl StringPart {
         }
     }
 
+    /// Returns the prefix of the string part.
+    pub(crate) const fn prefix(&self) -> StringPrefix {
+        self.prefix
+    }
+
+    /// Returns the surrounding quotes of the string part.
+    pub(crate) const fn quotes(&self) -> StringQuotes {
+        self.quotes
+    }
+
+    /// Returns the range of the string's content in the source (minus prefix and quotes).
+    pub(crate) const fn content_range(&self) -> TextRange {
+        self.content_range
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct StringNormalizer(StringPart);
+
+impl StringNormalizer {
+    pub(crate) fn from_source(range: TextRange, locator: &Locator) -> Self {
+        Self(StringPart::from_source(range, locator))
+    }
+
     /// Computes the strings preferred quotes and normalizes its content.
     ///
     /// The parent docstring quote style should be set when formatting a code
@@ -305,84 +329,21 @@ impl StringPart {
         parent_docstring_quote_char: Option<QuoteChar>,
         normalize_hex: bool,
     ) -> NormalizedString<'a> {
-        // Per PEP 8, always prefer double quotes for triple-quoted strings.
-        let preferred_style = if self.quotes.triple {
-            // ... unless we're formatting a code snippet inside a docstring,
-            // then we specifically want to invert our quote style to avoid
-            // writing out invalid Python.
-            //
-            // It's worth pointing out that we can actually wind up being
-            // somewhat out of sync with PEP8 in this case. Consider this
-            // example:
-            //
-            //     def foo():
-            //         '''
-            //         Something.
-            //
-            //         >>> """tricksy"""
-            //         '''
-            //         pass
-            //
-            // Ideally, this would be reformatted as:
-            //
-            //     def foo():
-            //         """
-            //         Something.
-            //
-            //         >>> '''tricksy'''
-            //         """
-            //         pass
-            //
-            // But the logic here results in the original quoting being
-            // preserved. This is because the quoting style of the outer
-            // docstring is determined, in part, by looking at its contents. In
-            // this case, it notices that it contains a `"""` and thus infers
-            // that using `'''` would overall read better because it avoids
-            // the need to escape the interior `"""`. Except... in this case,
-            // the `"""` is actually part of a code snippet that could get
-            // reformatted to using a different quoting style itself.
-            //
-            // Fixing this would, I believe, require some fairly seismic
-            // changes to how formatting strings works. Namely, we would need
-            // to look for code snippets before normalizing the docstring, and
-            // then figure out the quoting style more holistically by looking
-            // at the various kinds of quotes used in the code snippets and
-            // what reformatting them might look like.
-            //
-            // Overall this is a bit of a corner case and just inverting the
-            // style from what the parent ultimately decided upon works, even
-            // if it doesn't have perfect alignment with PEP8.
-            if let Some(quote) = parent_docstring_quote_char {
-                QuoteStyle::from(quote.invert())
-            } else {
-                QuoteStyle::Double
-            }
-        } else {
-            configured_style
-        };
+        let raw_content = locator.slice(self.0.content_range());
 
-        let raw_content = &locator.slice(self.content_range);
+        let quotes = choose_quotes(
+            &self.0,
+            locator,
+            quoting,
+            configured_style,
+            parent_docstring_quote_char,
+        );
 
-        let quotes = match quoting {
-            Quoting::Preserve => self.quotes,
-            Quoting::CanChange => {
-                if let Some(preferred_quote) = QuoteChar::from_style(preferred_style) {
-                    if self.prefix.is_raw_string() {
-                        choose_quotes_raw(raw_content, self.quotes, preferred_quote)
-                    } else {
-                        choose_quotes(raw_content, self.quotes, preferred_quote)
-                    }
-                } else {
-                    self.quotes
-                }
-            }
-        };
-
-        let normalized = normalize_string(raw_content, quotes, self.prefix, normalize_hex);
+        let normalized = normalize_string(raw_content, quotes, self.0.prefix(), normalize_hex);
 
         NormalizedString {
-            prefix: self.prefix,
-            content_range: self.content_range,
+            prefix: self.0.prefix(),
+            content_range: self.0.content_range(),
             text: normalized,
             quotes,
         }
@@ -504,12 +465,97 @@ impl Format<PyFormatContext<'_>> for StringPrefix {
     }
 }
 
+/// Computes the strings preferred quotes.
+///
+/// The parent docstring quote style should be set when formatting a code
+/// snippet within the docstring. The quote style should correspond to the
+/// style of quotes used by said docstring.
+pub(crate) fn choose_quotes(
+    string: &StringPart,
+    locator: &Locator,
+    quoting: Quoting,
+    configured_style: QuoteStyle,
+    parent_docstring_quote_char: Option<QuoteChar>,
+) -> StringQuotes {
+    // Per PEP 8, always prefer double quotes for triple-quoted strings.
+    let preferred_style = if string.quotes().triple {
+        // ... unless we're formatting a code snippet inside a docstring,
+        // then we specifically want to invert our quote style to avoid
+        // writing out invalid Python.
+        //
+        // It's worth pointing out that we can actually wind up being
+        // somewhat out of sync with PEP8 in this case. Consider this
+        // example:
+        //
+        //     def foo():
+        //         '''
+        //         Something.
+        //
+        //         >>> """tricksy"""
+        //         '''
+        //         pass
+        //
+        // Ideally, this would be reformatted as:
+        //
+        //     def foo():
+        //         """
+        //         Something.
+        //
+        //         >>> '''tricksy'''
+        //         """
+        //         pass
+        //
+        // But the logic here results in the original quoting being
+        // preserved. This is because the quoting style of the outer
+        // docstring is determined, in part, by looking at its contents. In
+        // this case, it notices that it contains a `"""` and thus infers
+        // that using `'''` would overall read better because it avoids
+        // the need to escape the interior `"""`. Except... in this case,
+        // the `"""` is actually part of a code snippet that could get
+        // reformatted to using a different quoting style itself.
+        //
+        // Fixing this would, I believe, require some fairly seismic
+        // changes to how formatting strings works. Namely, we would need
+        // to look for code snippets before normalizing the docstring, and
+        // then figure out the quoting style more holistically by looking
+        // at the various kinds of quotes used in the code snippets and
+        // what reformatting them might look like.
+        //
+        // Overall this is a bit of a corner case and just inverting the
+        // style from what the parent ultimately decided upon works, even
+        // if it doesn't have perfect alignment with PEP8.
+        if let Some(quote) = parent_docstring_quote_char {
+            QuoteStyle::from(quote.invert())
+        } else {
+            QuoteStyle::Double
+        }
+    } else {
+        configured_style
+    };
+
+    match quoting {
+        Quoting::Preserve => string.quotes(),
+        Quoting::CanChange => {
+            if let Some(preferred_quote) = QuoteChar::from_style(preferred_style) {
+                let raw_content = locator.slice(string.content_range());
+                if string.prefix().is_raw_string() {
+                    choose_quotes_for_raw_string(raw_content, string.quotes(), preferred_quote)
+                } else {
+                    choose_quotes_impl(raw_content, string.quotes(), preferred_quote)
+                }
+            } else {
+                string.quotes()
+            }
+        }
+    }
+}
+
 /// Choose the appropriate quote style for a raw string.
 ///
 /// The preferred quote style is chosen unless the string contains unescaped quotes of the
 /// preferred style. For example, `r"foo"` is chosen over `r'foo'` if the preferred quote
 /// style is double quotes.
-fn choose_quotes_raw(
+fn choose_quotes_for_raw_string(
     input: &str,
     quotes: StringQuotes,
     preferred_quote: QuoteChar,
@@ -568,7 +614,11 @@ fn choose_quotes_raw(
 /// For triple quoted strings, the preferred quote style is always used, unless the string contains
 /// a triplet of the quote character (e.g., if double quotes are preferred, double quotes will be
 /// used unless the string contains `"""`).
-fn choose_quotes(input: &str, quotes: StringQuotes, preferred_quote: QuoteChar) -> StringQuotes {
+fn choose_quotes_impl(
+    input: &str,
+    quotes: StringQuotes,
+    preferred_quote: QuoteChar,
+) -> StringQuotes {
     let quote = if quotes.triple {
         // True if the string contains a triple quote sequence of the configured quote style.
         let mut uses_triple_quotes = false;
@@ -777,7 +827,7 @@ impl TryFrom<char> for QuoteChar {
 /// with the provided [`StringQuotes`] style.
 ///
 /// Returns the normalized string and whether it contains new lines.
-fn normalize_string(
+pub(crate) fn normalize_string(
     input: &str,
     quotes: StringQuotes,
     prefix: StringPrefix,

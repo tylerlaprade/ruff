@@ -8,6 +8,7 @@ use crate::expression::parentheses::{
 };
 use crate::other::f_string_part::FormatFStringPart;
 use crate::prelude::*;
+use crate::preview::is_pep_701_enabled;
 use crate::string::{AnyString, FormatStringContinuation, Quoting};
 
 #[derive(Default)]
@@ -20,7 +21,13 @@ impl FormatNodeRule<ExprFString> for FormatExprFString {
         match value.as_slice() {
             [f_string_part] => FormatFStringPart::new(
                 f_string_part,
-                f_string_quoting(item, &f.context().locator()),
+                if is_pep_701_enabled(f) {
+                    // In preview mode, if the target version supports PEP 701, then
+                    // we can re-use the same quotes inside the f-string.
+                    Quoting::CanChange
+                } else {
+                    f_string_quoting(item, &f.context().locator())
+                },
             )
             .fmt(f),
             _ => {

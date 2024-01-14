@@ -3,7 +3,7 @@ use ruff_text_size::Ranged;
 
 use crate::prelude::*;
 use crate::preview::is_hex_codes_in_unicode_sequences_enabled;
-use crate::string::{docstring, Quoting, StringPart};
+use crate::string::{docstring, Quoting, StringNormalizer};
 use crate::QuoteStyle;
 
 pub(crate) struct FormatStringLiteral<'a> {
@@ -50,17 +50,17 @@ impl Format<PyFormatContext<'_>> for FormatStringLiteral<'_> {
     fn fmt(&self, f: &mut PyFormatter) -> FormatResult<()> {
         let locator = f.context().locator();
 
-        let quote_style = if self.layout.is_docstring() {
+        let configured_quote_style = if self.layout.is_docstring() {
             // Per PEP 8 and PEP 257, always prefer double quotes for docstrings
             QuoteStyle::Double
         } else {
             f.options().quote_style()
         };
 
-        let normalized = StringPart::from_source(self.value.range(), &locator).normalize(
+        let normalized = StringNormalizer::from_source(self.value.range(), &locator).normalize(
             self.layout.quoting(),
             &locator,
-            quote_style,
+            configured_quote_style,
             f.context().docstring(),
             is_hex_codes_in_unicode_sequences_enabled(f.context()),
         );

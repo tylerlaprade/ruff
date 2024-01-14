@@ -289,6 +289,9 @@ fn handle_enclosed_comment<'a>(
             }
         }
         AnyNodeRef::FString(fstring) => CommentPlacement::dangling(fstring, comment),
+        AnyNodeRef::FStringExpressionElement(_) => {
+            handle_bracketed_end_of_line_comment(comment, locator)
+        }
         AnyNodeRef::ExprList(_)
         | AnyNodeRef::ExprSet(_)
         | AnyNodeRef::ExprListComp(_)
