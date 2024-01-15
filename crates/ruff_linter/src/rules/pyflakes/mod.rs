@@ -11,7 +11,6 @@ mod tests {
 
     use anyhow::Result;
     use regex::Regex;
-    use ruff_python_parser::lexer::LexResult;
 
     use test_case::test_case;
 
@@ -575,12 +574,12 @@ mod tests {
         let source_type = PySourceType::default();
         let source_kind = SourceKind::Python(contents.to_string());
         let settings = LinterSettings::for_rules(Linter::Pyflakes.rules());
-        let tokens: Vec<LexResult> = ruff_python_parser::tokenize(&contents, source_type.as_mode());
+        let tokenized = ruff_python_parser::tokenize(&contents, source_type.as_mode());
         let locator = Locator::new(&contents);
-        let stylist = Stylist::from_tokens(&tokens, &locator);
-        let indexer = Indexer::from_tokens(&tokens, &locator);
+        let stylist = Stylist::from_tokens(tokenized.tokens(), &locator);
+        let indexer = Indexer::from_tokens(tokenized.tokens(), &locator);
         let directives = directives::extract_directives(
-            &tokens,
+            tokenized.tokens(),
             directives::Flags::from_settings(&settings),
             &locator,
             &indexer,
@@ -599,7 +598,7 @@ mod tests {
             flags::Noqa::Enabled,
             &source_kind,
             source_type,
-            TokenSource::Tokens(tokens),
+            TokenSource::Tokens(tokenized),
         );
         diagnostics.sort_by_key(Ranged::start);
         let actual = diagnostics

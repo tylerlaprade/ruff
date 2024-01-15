@@ -1017,8 +1017,7 @@ mod tests {
 
         fn tokenize_reverse(&self) -> Vec<SimpleToken> {
             let comment_ranges: Vec<_> = lex(self.source, Mode::Module)
-                .filter_map(|result| {
-                    let (token, range) = result.expect("Input to be a valid python program.");
+                .filter_map(|(token, range)| {
                     if matches!(token, Tok::Comment(_)) {
                         Some(range)
                     } else {

@@ -16,7 +16,7 @@ pub(super) fn trailing_comma(
     let contents = locator.slice(stmt);
     let mut count = 0u32;
     let mut trailing_comma = TrailingComma::Absent;
-    for (tok, _) in lexer::lex_starts_at(contents, source_type.as_mode(), stmt.start()).flatten() {
+    for (tok, _) in lexer::lex_starts_at(contents, source_type.as_mode(), stmt.start()) {
         if matches!(tok, Tok::Lpar) {
             count = count.saturating_add(1);
         }

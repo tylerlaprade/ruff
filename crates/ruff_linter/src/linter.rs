@@ -14,8 +14,8 @@ use ruff_python_ast::imports::ImportMap;
 use ruff_python_ast::{PySourceType, Suite};
 use ruff_python_codegen::Stylist;
 use ruff_python_index::Indexer;
-use ruff_python_parser::lexer::LexResult;
-use ruff_python_parser::{AsMode, ParseError};
+use ruff_python_parser::lexer::Spanned;
+use ruff_python_parser::{AsMode, ParseError, Tokenized};
 use ruff_source_file::{Locator, SourceFileBuilder};
 use ruff_text_size::Ranged;
 
@@ -300,20 +300,20 @@ pub fn add_noqa_to_path(
     let contents = source_kind.source_code();
 
     // Tokenize once.
-    let tokens: Vec<LexResult> = ruff_python_parser::tokenize(contents, source_type.as_mode());
+    let tokenized = ruff_python_parser::tokenize(contents, source_type.as_mode());
 
     // Map row and column locations to byte slices (lazily).
     let locator = Locator::new(contents);
 
     // Detect the current code style (lazily).
-    let stylist = Stylist::from_tokens(&tokens, &locator);
+    let stylist = Stylist::from_tokens(tokenized.tokens(), &locator);
 
     // Extra indices from the code.
-    let indexer = Indexer::from_tokens(&tokens, &locator);
+    let indexer = Indexer::from_tokens(tokenized.tokens(), &locator);
 
     // Extract the `# noqa` and `# isort: skip` directives from the source.
     let directives = directives::extract_directives(
-        &tokens,
+        tokenized.tokens(),
         directives::Flags::from_settings(settings),
         &locator,
         &indexer,
@@ -334,7 +334,7 @@ pub fn add_noqa_to_path(
         flags::Noqa::Disabled,
         source_kind,
         source_type,
-        TokenSource::Tokens(tokens),
+        TokenSource::Tokens(tokenized),
     );
 
     // Log any parse errors.
@@ -469,21 +469,21 @@ pub fn lint_fix<'a>(
     // Continuously fix until the source code stabilizes.
     loop {
         // Tokenize once.
-        let tokens: Vec<LexResult> =
+        let tokenized =
             ruff_python_parser::tokenize(transformed.source_code(), source_type.as_mode());
 
         // Map row and column locations to byte slices (lazily).
         let locator = Locator::new(transformed.source_code());
 
         // Detect the current code style (lazily).
-        let stylist = Stylist::from_tokens(&tokens, &locator);
+        let stylist = Stylist::from_tokens(tokenized.tokens(), &locator);
 
         // Extra indices from the code.
-        let indexer = Indexer::from_tokens(&tokens, &locator);
+        let indexer = Indexer::from_tokens(tokenized.tokens(), &locator);
 
         // Extract the `# noqa` and `# isort: skip` directives from the source.
         let directives = directives::extract_directives(
-            &tokens,
+            tokenized.tokens(),
             directives::Flags::from_settings(settings),
             &locator,
             &indexer,
@@ -501,7 +501,7 @@ pub fn lint_fix<'a>(
             noqa,
             &transformed,
             source_type,
-            TokenSource::Tokens(tokens),
+            TokenSource::Tokens(tokenized),
         );
 
         if iterations == 0 {
@@ -644,7 +644,7 @@ pub enum ParseSource<'a> {
     None,
     /// Use the precomputed tokens and AST.
     Precomputed {
-        tokens: &'a [LexResult],
+        tokens: &'a [Spanned],
         ast: &'a Suite,
     },
 }
@@ -669,20 +669,20 @@ impl<'a> ParseSource<'a> {
 #[derive(Debug, Clone)]
 pub enum TokenSource<'a> {
     /// Use the precomputed tokens to generate the AST.
-    Tokens(Vec<LexResult>),
+    Tokens(Tokenized),
     /// Use the precomputed tokens and AST.
     Precomputed {
-        tokens: &'a [LexResult],
+        tokens: &'a [Spanned],
         ast: &'a Suite,
     },
 }
 
 impl Deref for TokenSource<'_> {
-    type Target = [LexResult];
+    type Target = [Spanned];
 
     fn deref(&self) -> &Self::Target {
         match self {
-            Self::Tokens(tokens) => tokens,
+            Self::Tokens(tokenized) => tokenized.tokens(),
             Self::Precomputed { tokens, .. } => tokens,
         }
     }

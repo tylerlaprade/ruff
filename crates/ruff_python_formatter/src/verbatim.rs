@@ -6,7 +6,7 @@ use unicode_width::UnicodeWidthStr;
 use ruff_formatter::{write, FormatError};
 use ruff_python_ast::AnyNodeRef;
 use ruff_python_ast::Stmt;
-use ruff_python_parser::lexer::{lex_starts_at, LexResult};
+use ruff_python_parser::lexer::{lex_starts_at, Spanned};
 use ruff_python_parser::{Mode, Tok};
 use ruff_python_trivia::lines_before;
 use ruff_source_file::Locator;
@@ -763,7 +763,7 @@ impl<I> LogicalLinesIter<I> {
 
 impl<I> Iterator for LogicalLinesIter<I>
 where
-    I: Iterator<Item = LexResult>,
+    I: Iterator<Item = Spanned>,
 {
     type Item = FormatResult<LogicalLine>;
 
@@ -772,7 +772,7 @@ where
 
         let (content_end, full_end) = loop {
             match self.lexer.next() {
-                Some(Ok((token, range))) => match token {
+                Some((token, range)) => match token {
                     Tok::Newline => break (range.start(), range.end()),
                     // Ignore if inside an expression
                     Tok::NonLogicalNewline if parens == 0 => break (range.start(), range.end()),
@@ -781,6 +781,11 @@ where
                     }
                     Tok::Rbrace | Tok::Rpar | Tok::Rsqb => {
                         parens = parens.saturating_sub(1);
+                    }
+                    Tok::Unknown => {
+                        return Some(Err(FormatError::syntax_error(
+                            "Unexpected token when lexing verbatim statement range.",
+                        )))
                     }
                     _ => {}
                 },
@@ -798,11 +803,6 @@ where
                         None
                     };
                 }
-                Some(Err(_)) => {
-                    return Some(Err(FormatError::syntax_error(
-                        "Unexpected token when lexing verbatim statement range.",
-                    )))
-                }
             }
         };
 
@@ -816,7 +816,7 @@ where
     }
 }
 
-impl<I> FusedIterator for LogicalLinesIter<I> where I: Iterator<Item = LexResult> {}
+impl<I> FusedIterator for LogicalLinesIter<I> where I: Iterator<Item = Spanned> {}
 
 /// A logical line or a comment (or form feed only) line
 struct LogicalLine {

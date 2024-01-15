@@ -2,7 +2,7 @@
 //! are omitted from the AST (e.g., commented lines).
 
 use ruff_python_ast::Stmt;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_python_trivia::{
     has_leading_content, has_trailing_content, is_python_whitespace, CommentRanges,
@@ -24,7 +24,7 @@ pub struct Indexer {
 }
 
 impl Indexer {
-    pub fn from_tokens(tokens: &[LexResult], locator: &Locator) -> Self {
+    pub fn from_tokens(tokens: &[Spanned], locator: &Locator) -> Self {
         assert!(TextSize::try_from(locator.contents().len()).is_ok());
 
         let mut comment_ranges_builder = CommentRangesBuilder::default();
@@ -35,7 +35,7 @@ impl Indexer {
         let mut prev_token: Option<&Tok> = None;
         let mut line_start = TextSize::default();
 
-        for (tok, range) in tokens.iter().flatten() {
+        for (tok, range) in tokens.iter() {
             let trivia = locator.slice(TextRange::new(prev_end, range.start()));
 
             // Get the trivia between the previous and the current token and detect any newlines.
@@ -238,7 +238,7 @@ impl Indexer {
 
 #[cfg(test)]
 mod tests {
-    use ruff_python_parser::lexer::LexResult;
+    use ruff_python_parser::lexer::Spanned;
     use ruff_python_parser::{lexer, Mode};
     use ruff_source_file::Locator;
     use ruff_text_size::{TextRange, TextSize};
@@ -248,7 +248,7 @@ mod tests {
     #[test]
     fn continuation() {
         let contents = r"x = 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<Spanned> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(&lxr, &Locator::new(contents));
         assert_eq!(indexer.continuation_line_starts(), &[]);
 
@@ -261,7 +261,7 @@ y = 2
         "
         .trim();
 
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(&lxr, &Locator::new(contents));
         assert_eq!(indexer.continuation_line_starts(), &[]);
 
@@ -281,7 +281,7 @@ if True:
 )
 "#
         .trim();
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(lxr.as_slice(), &Locator::new(contents));
         assert_eq!(
             indexer.continuation_line_starts(),
@@ -313,7 +313,7 @@ x = 1; \
 import os
 "
         .trim();
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(lxr.as_slice(), &Locator::new(contents));
         assert_eq!(
             indexer.continuation_line_starts(),
@@ -336,7 +336,7 @@ f'foo { 'str1' \
 }'
 "
         .trim();
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(lxr.as_slice(), &Locator::new(contents));
         assert_eq!(
             indexer.continuation_line_starts(),
@@ -359,7 +359,7 @@ f"start {f"inner {f"another"}"} end"
 f"implicit " f"concatenation"
 "#
         .trim();
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(lxr.as_slice(), &Locator::new(contents));
         assert_eq!(
             indexer
@@ -395,7 +395,7 @@ f-string"""}
 """
 "#
         .trim();
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(lxr.as_slice(), &Locator::new(contents));
         assert_eq!(
             indexer
@@ -433,7 +433,7 @@ f-string"""}
 the end"""
 "#
         .trim();
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let indexer = Indexer::from_tokens(lxr.as_slice(), &Locator::new(contents));
 
         // For reference, the ranges of the f-strings in the above code are as

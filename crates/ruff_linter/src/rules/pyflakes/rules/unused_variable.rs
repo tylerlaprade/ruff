@@ -76,9 +76,8 @@ where
     F: Fn(Tok) -> bool,
 {
     let contents = locator.after(location);
-    for ((_, range), (tok, _)) in lexer::lex_starts_at(contents, source_type.as_mode(), location)
-        .flatten()
-        .tuple_windows()
+    for ((_, range), (tok, _)) in
+        lexer::lex_starts_at(contents, source_type.as_mode(), location).tuple_windows()
     {
         if f(tok) {
             return Some(range);
@@ -105,9 +104,8 @@ where
     let mut sqb_count = 0u32;
     let mut brace_count = 0u32;
 
-    for ((tok, _), (_, range)) in lexer::lex_starts_at(contents, source_type.as_mode(), location)
-        .flatten()
-        .tuple_windows()
+    for ((tok, _), (_, range)) in
+        lexer::lex_starts_at(contents, source_type.as_mode(), location).tuple_windows()
     {
         match tok {
             Tok::Lpar => {
@@ -161,7 +159,7 @@ where
     let mut sqb_count = 0u32;
     let mut brace_count = 0u32;
 
-    for (tok, range) in lexer::lex_starts_at(contents, source_type.as_mode(), location).flatten() {
+    for (tok, range) in lexer::lex_starts_at(contents, source_type.as_mode(), location) {
         match tok {
             Tok::Lpar => {
                 par_count = par_count.saturating_add(1);

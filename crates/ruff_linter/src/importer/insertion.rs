@@ -155,7 +155,7 @@ impl<'a> Insertion<'a> {
 
         let mut state = Awaiting::Colon(0);
         for (tok, range) in
-            lexer::lex_starts_at(locator.after(location), source_type.as_mode(), location).flatten()
+            lexer::lex_starts_at(locator.after(location), source_type.as_mode(), location)
         {
             match state {
                 // Iterate until we find the colon indicating the start of the block body.
@@ -323,7 +323,6 @@ mod tests {
 
     use ruff_python_ast::PySourceType;
     use ruff_python_codegen::Stylist;
-    use ruff_python_parser::lexer::LexResult;
     use ruff_python_parser::{parse_suite, Mode};
     use ruff_source_file::{LineEnding, Locator};
     use ruff_text_size::TextSize;
@@ -334,9 +333,9 @@ mod tests {
     fn start_of_file() -> Result<()> {
         fn insert(contents: &str) -> Result<Insertion> {
             let program = parse_suite(contents)?;
-            let tokens: Vec<LexResult> = ruff_python_parser::tokenize(contents, Mode::Module);
+            let tokenized = ruff_python_parser::tokenize(contents, Mode::Module);
             let locator = Locator::new(contents);
-            let stylist = Stylist::from_tokens(&tokens, &locator);
+            let stylist = Stylist::from_tokens(tokenized.tokens(), &locator);
             Ok(Insertion::start_of_file(&program, &locator, &stylist))
         }
 
@@ -445,9 +444,9 @@ x = 1
     #[test]
     fn start_of_block() {
         fn insert(contents: &str, offset: TextSize) -> Insertion {
-            let tokens: Vec<LexResult> = ruff_python_parser::tokenize(contents, Mode::Module);
+            let tokenized = ruff_python_parser::tokenize(contents, Mode::Module);
             let locator = Locator::new(contents);
-            let stylist = Stylist::from_tokens(&tokens, &locator);
+            let stylist = Stylist::from_tokens(tokenized.tokens(), &locator);
             Insertion::start_of_block(offset, &locator, &stylist, PySourceType::default())
         }
 

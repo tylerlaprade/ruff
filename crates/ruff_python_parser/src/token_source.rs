@@ -1,29 +1,22 @@
-use crate::lexer::LexResult;
+use crate::lexer::Spanned;
 use crate::Tok;
 use std::iter::FusedIterator;
 
 #[derive(Clone, Debug)]
 pub(crate) struct TokenSource {
-    tokens: std::vec::IntoIter<LexResult>,
+    tokens: std::vec::IntoIter<Spanned>,
 }
 
 impl TokenSource {
-    pub(crate) fn new(tokens: Vec<LexResult>) -> Self {
+    pub(crate) fn new(tokens: Vec<Spanned>) -> Self {
         Self {
             tokens: tokens.into_iter(),
         }
     }
 }
 
-impl FromIterator<LexResult> for TokenSource {
-    #[inline]
-    fn from_iter<T: IntoIterator<Item = LexResult>>(iter: T) -> Self {
-        Self::new(Vec::from_iter(iter))
-    }
-}
-
 impl Iterator for TokenSource {
-    type Item = LexResult;
+    type Item = Spanned;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -41,6 +34,6 @@ impl Iterator for TokenSource {
 
 impl FusedIterator for TokenSource {}
 
-const fn is_trivia(result: &LexResult) -> bool {
-    matches!(result, Ok((Tok::Comment(_) | Tok::NonLogicalNewline, _)))
+const fn is_trivia(result: &Spanned) -> bool {
+    matches!(result, (Tok::Comment(_) | Tok::NonLogicalNewline, _))
 }

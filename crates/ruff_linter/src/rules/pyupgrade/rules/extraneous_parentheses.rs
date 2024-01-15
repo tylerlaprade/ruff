@@ -1,4 +1,4 @@
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_text_size::{Ranged, TextRange};
 
@@ -37,16 +37,14 @@ impl AlwaysFixableViolation for ExtraneousParentheses {
 }
 
 // See: https://github.com/asottile/pyupgrade/blob/97ed6fb3cf2e650d4f762ba231c3f04c41797710/pyupgrade/_main.py#L148
-fn match_extraneous_parentheses(tokens: &[LexResult], mut i: usize) -> Option<(usize, usize)> {
+fn match_extraneous_parentheses(tokens: &[Spanned], mut i: usize) -> Option<(usize, usize)> {
     i += 1;
 
     loop {
         if i >= tokens.len() {
             return None;
         }
-        let Ok((tok, _)) = &tokens[i] else {
-            return None;
-        };
+        let (tok, _) = &tokens[i];
         match tok {
             Tok::Comment(..) | Tok::NonLogicalNewline => {
                 i += 1;
@@ -70,9 +68,7 @@ fn match_extraneous_parentheses(tokens: &[LexResult], mut i: usize) -> Option<(u
         if i >= tokens.len() {
             return None;
         }
-        let Ok((tok, _)) = &tokens[i] else {
-            return None;
-        };
+        let (tok, _) = &tokens[i];
 
         // If we find a comma or a yield at depth 1 or 2, it's a tuple or coroutine.
         if depth == 1 && matches!(tok, Tok::Comma | Tok::Yield) {
@@ -88,12 +84,7 @@ fn match_extraneous_parentheses(tokens: &[LexResult], mut i: usize) -> Option<(u
     let end = i;
 
     // Verify that we're not in an empty tuple.
-    if (start + 1..i).all(|i| {
-        matches!(
-            tokens[i],
-            Ok((Tok::Comment(..) | Tok::NonLogicalNewline, _))
-        )
-    }) {
+    if (start + 1..i).all(|i| matches!(tokens[i], (Tok::Comment(..) | Tok::NonLogicalNewline, _))) {
         return None;
     }
 
@@ -103,9 +94,7 @@ fn match_extraneous_parentheses(tokens: &[LexResult], mut i: usize) -> Option<(u
         if i >= tokens.len() {
             return None;
         }
-        let Ok((tok, _)) = &tokens[i] else {
-            return None;
-        };
+        let (tok, _) = &tokens[i];
         match tok {
             Tok::Comment(..) | Tok::NonLogicalNewline => {
                 i += 1;
@@ -119,9 +108,7 @@ fn match_extraneous_parentheses(tokens: &[LexResult], mut i: usize) -> Option<(u
     if i >= tokens.len() {
         return None;
     }
-    let Ok((tok, _)) = &tokens[i] else {
-        return None;
-    };
+    let (tok, _) = &tokens[i];
     if matches!(tok, Tok::Rpar) {
         Some((start, end))
     } else {
@@ -132,20 +119,16 @@ fn match_extraneous_parentheses(tokens: &[LexResult], mut i: usize) -> Option<(u
 /// UP034
 pub(crate) fn extraneous_parentheses(
     diagnostics: &mut Vec<Diagnostic>,
-    tokens: &[LexResult],
+    tokens: &[Spanned],
     locator: &Locator,
 ) {
     let mut i = 0;
     while i < tokens.len() {
-        if matches!(tokens[i], Ok((Tok::Lpar, _))) {
+        if matches!(tokens[i], (Tok::Lpar, _)) {
             if let Some((start, end)) = match_extraneous_parentheses(tokens, i) {
                 i = end + 1;
-                let Ok((_, start_range)) = &tokens[start] else {
-                    return;
-                };
-                let Ok((.., end_range)) = &tokens[end] else {
-                    return;
-                };
+                let (_, start_range) = &tokens[start];
+                let (.., end_range) = &tokens[end];
                 let mut diagnostic = Diagnostic::new(
                     ExtraneousParentheses,
                     TextRange::new(start_range.start(), end_range.end()),

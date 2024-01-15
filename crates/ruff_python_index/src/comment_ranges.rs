@@ -1,8 +1,8 @@
 use std::fmt::Debug;
 
 use ruff_python_ast::PySourceType;
-use ruff_python_parser::lexer::{lex, LexResult, LexicalError};
-use ruff_python_parser::{AsMode, Tok};
+use ruff_python_parser::lexer::lex;
+use ruff_python_parser::{AsMode, Tok, Tokenized};
 use ruff_python_trivia::CommentRanges;
 use ruff_text_size::TextRange;
 
@@ -24,21 +24,17 @@ impl CommentRangesBuilder {
 }
 
 /// Helper method to lex and extract comment ranges
-pub fn tokens_and_ranges(
-    source: &str,
-    source_type: PySourceType,
-) -> Result<(Vec<LexResult>, CommentRanges), LexicalError> {
+pub fn tokens_and_ranges(source: &str, source_type: PySourceType) -> (Tokenized, CommentRanges) {
     let mut tokens = Vec::new();
     let mut comment_ranges = CommentRangesBuilder::default();
+    let mut lexer = lex(source, source_type.as_mode());
 
-    for result in lex(source, source_type.as_mode()) {
-        if let Ok((token, range)) = &result {
-            comment_ranges.visit_token(token, *range);
-        }
+    for result in lexer.by_ref() {
+        comment_ranges.visit_token(&result.0, result.1);
 
         tokens.push(result);
     }
 
     let comment_ranges = comment_ranges.finish();
-    Ok((tokens, comment_ranges))
+    (Tokenized::new(tokens, lexer.into_errors()), comment_ranges)
 }

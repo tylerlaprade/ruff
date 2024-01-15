@@ -4,7 +4,7 @@
 use std::iter::FusedIterator;
 
 use ruff_python_ast::{self as ast, Stmt, Suite};
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_text_size::{Ranged, TextSize};
 
@@ -12,19 +12,19 @@ use ruff_python_ast::statement_visitor::{walk_stmt, StatementVisitor};
 use ruff_source_file::{Locator, UniversalNewlineIterator};
 
 /// Extract doc lines (standalone comments) from a token sequence.
-pub(crate) fn doc_lines_from_tokens(lxr: &[LexResult]) -> DocLines {
+pub(crate) fn doc_lines_from_tokens(lxr: &[Spanned]) -> DocLines {
     DocLines::new(lxr)
 }
 
 pub(crate) struct DocLines<'a> {
-    inner: std::iter::Flatten<core::slice::Iter<'a, LexResult>>,
+    inner: core::slice::Iter<'a, Spanned>,
     prev: TextSize,
 }
 
 impl<'a> DocLines<'a> {
-    fn new(lxr: &'a [LexResult]) -> Self {
+    fn new(lxr: &'a [Spanned]) -> Self {
         Self {
-            inner: lxr.iter().flatten(),
+            inner: lxr.iter(),
             prev: TextSize::default(),
         }
     }

@@ -126,9 +126,7 @@ fn replace_with_bytes_literal(
     let contents = locator.slice(call);
     let mut replacement = String::with_capacity(contents.len() + 1);
     let mut prev = call.start();
-    for (tok, range) in
-        lexer::lex_starts_at(contents, source_type.as_mode(), call.start()).flatten()
-    {
+    for (tok, range) in lexer::lex_starts_at(contents, source_type.as_mode(), call.start()) {
         match tok {
             Tok::Dot => break,
             Tok::String { .. } => {

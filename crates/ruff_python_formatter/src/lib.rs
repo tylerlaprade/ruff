@@ -6,7 +6,7 @@ use ruff_formatter::{format, FormatError, Formatted, PrintError, Printed, Source
 use ruff_python_ast::AstNode;
 use ruff_python_ast::Mod;
 use ruff_python_index::tokens_and_ranges;
-use ruff_python_parser::{parse_tokens, AsMode, ParseError, ParseErrorType};
+use ruff_python_parser::{parse_tokens, AsMode, ParseError};
 use ruff_python_trivia::CommentRanges;
 use ruff_source_file::Locator;
 
@@ -121,11 +121,7 @@ pub fn format_module_source(
     options: PyFormatOptions,
 ) -> Result<Printed, FormatModuleError> {
     let source_type = options.source_type();
-    let (tokens, comment_ranges) =
-        tokens_and_ranges(source, source_type).map_err(|err| ParseError {
-            offset: err.location,
-            error: ParseErrorType::Lexical(err.error),
-        })?;
+    let (tokens, comment_ranges) = tokens_and_ranges(source, source_type);
     let module = parse_tokens(tokens, source, source_type.as_mode())?;
     let formatted = format_module_ast(&module, &comment_ranges, source, options)?;
     Ok(formatted.print()?)
@@ -209,7 +205,7 @@ def main() -> None:
 
 "#;
         let source_type = PySourceType::Python;
-        let (tokens, comment_ranges) = tokens_and_ranges(source, source_type).unwrap();
+        let (tokens, comment_ranges) = tokens_and_ranges(source, source_type);
 
         // Parse the AST.
         let source_path = "code_inline.py";

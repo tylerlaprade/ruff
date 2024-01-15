@@ -199,8 +199,7 @@ fn create_remove_param_fix<T: Ranged>(
     let mut fix_end: Option<TextSize> = None;
     let mut is_first_arg: bool = false;
     let mut delete_first_arg: bool = false;
-    for (tok, range) in lexer::lex_starts_at(content, source_type.as_mode(), expr.start()).flatten()
-    {
+    for (tok, range) in lexer::lex_starts_at(content, source_type.as_mode(), expr.start()) {
         if range.start() == mode_param.start() {
             if is_first_arg {
                 delete_first_arg = true;

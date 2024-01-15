@@ -1,7 +1,7 @@
 use ruff_diagnostics::{Diagnostic, Violation};
 use ruff_macros::{derive_message_formats, violation};
 use ruff_python_index::Indexer;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_python_trivia::leading_indentation;
 use ruff_source_file::Locator;
@@ -48,7 +48,7 @@ impl Violation for TabIndentation {
 /// W191
 pub(crate) fn tab_indentation(
     diagnostics: &mut Vec<Diagnostic>,
-    tokens: &[LexResult],
+    tokens: &[Spanned],
     locator: &Locator,
     indexer: &Indexer,
 ) {
@@ -56,7 +56,7 @@ pub(crate) fn tab_indentation(
     // token before it.
     tab_indentation_at_line_start(diagnostics, locator, TextSize::default());
 
-    for (tok, range) in tokens.iter().flatten() {
+    for (tok, range) in tokens.iter() {
         if matches!(tok, Tok::Newline | Tok::NonLogicalNewline) {
             tab_indentation_at_line_start(diagnostics, locator, range.end());
         }

@@ -64,15 +64,17 @@
 //!
 //! For example, to get a stream of tokens from a given string, one could do this:
 //!
-//! ```
+//!```
 //! use ruff_python_parser::{lexer::lex, Mode};
 //!
 //! let python_source = r#"
 //! def is_odd(i):
 //!     return bool(i & 1)
 //! "#;
-//! let mut tokens = lex(python_source, Mode::Module);
-//! assert!(tokens.all(|t| t.is_ok()));
+//! let mut lexer = lex(python_source, Mode::Module);
+//! let tokens: Vec<_> = lexer.by_ref().collect();
+//!
+//! assert_eq!(&lexer.into_errors(), &[]);
 //! ```
 //!
 //! These tokens can be directly fed into the `ruff_python_parser` to generate an AST:
@@ -85,7 +87,7 @@
 //!    return bool(i & 1)
 //! "#;
 //! let tokens = lex(python_source, Mode::Module);
-//! let ast = parse_tokens(tokens.collect(), python_source, Mode::Module);
+//! let ast = parse_tokens(tokens, python_source, Mode::Module);
 //!
 //! assert!(ast.is_ok());
 //! ```
@@ -109,6 +111,7 @@
 //! [parsing]: https://en.wikipedia.org/wiki/Parsing
 //! [lexer]: crate::lexer
 
+use crate::lexer::{lex, LexicalError, Spanned};
 pub use parser::{
     parse, parse_expression, parse_expression_starts_at, parse_program, parse_starts_at,
     parse_suite, parse_tokens, ParseError, ParseErrorType,
@@ -116,8 +119,6 @@ pub use parser::{
 use ruff_python_ast::{Mod, PySourceType, Suite};
 pub use string::FStringErrorType;
 pub use token::{StringKind, Tok, TokenKind};
-
-use crate::lexer::LexResult;
 
 mod function;
 // Skip flattening lexer to distinguish from full ruff_python_parser
@@ -131,22 +132,48 @@ mod token;
 mod token_source;
 pub mod typing;
 
-/// Collect tokens up to and including the first error.
-pub fn tokenize(contents: &str, mode: Mode) -> Vec<LexResult> {
-    let mut tokens: Vec<LexResult> = vec![];
-    for tok in lexer::lex(contents, mode) {
-        let is_err = tok.is_err();
-        tokens.push(tok);
-        if is_err {
-            break;
+#[derive(Clone, Debug)]
+pub struct Tokenized {
+    tokens: Vec<Spanned>,
+    errors: Vec<LexicalError>,
+}
+
+impl Tokenized {
+    pub fn new(tokens: Vec<Spanned>, errors: Vec<LexicalError>) -> Self {
+        Self { tokens, errors }
+    }
+
+    pub fn tokens(&self) -> &[Spanned] {
+        &self.tokens
+    }
+
+    pub fn into_tokens(self) -> Vec<Spanned> {
+        self.tokens
+    }
+
+    /// Converts the tokenized source into a `Result`.
+    pub fn ok(self) -> Result<Vec<Spanned>, Vec<LexicalError>> {
+        if self.errors.is_empty() {
+            Ok(self.tokens)
+        } else {
+            Err(self.errors)
         }
     }
-    tokens
+
+    pub fn errors(&self) -> &[LexicalError] {
+        &self.errors
+    }
+}
+
+/// Collect tokens up to and including the first error.
+/// FIXME: Delete because it omits errors
+pub fn tokenize(contents: &str, mode: Mode) -> Tokenized {
+    lex(contents, mode).into()
 }
 
 /// Parse a full Python program from its tokens.
 pub fn parse_program_tokens(
-    tokens: Vec<LexResult>,
+    tokens: Tokenized,
     source: &str,
     is_jupyter_notebook: bool,
 ) -> anyhow::Result<Suite, ParseError> {

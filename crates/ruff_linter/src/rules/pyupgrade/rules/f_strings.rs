@@ -370,8 +370,7 @@ pub(crate) fn f_strings(
         checker.locator().slice(call.func.range()),
         Mode::Expression,
         call.start(),
-    )
-    .flatten();
+    );
     let end = loop {
         match lex.next() {
             Some((Tok::Dot, range)) => {
@@ -423,16 +422,11 @@ pub(crate) fn f_strings(
 
     // If the remainder is non-empty, add it to the contents.
     let rest = checker.locator().slice(TextRange::new(prev_end, end));
-    if !lexer::lex_starts_at(rest, Mode::Expression, prev_end)
-        .flatten()
-        .all(|(token, _)| match token {
-            Tok::Comment(_) | Tok::Newline | Tok::NonLogicalNewline | Tok::Indent | Tok::Dedent => {
-                true
-            }
-            Tok::String { value, .. } => value.is_empty(),
-            _ => false,
-        })
-    {
+    if !lexer::lex_starts_at(rest, Mode::Expression, prev_end).all(|(token, _)| match token {
+        Tok::Comment(_) | Tok::Newline | Tok::NonLogicalNewline | Tok::Indent | Tok::Dedent => true,
+        Tok::String { value, .. } => value.is_empty(),
+        _ => false,
+    }) {
         contents.push_str(rest);
     }
 

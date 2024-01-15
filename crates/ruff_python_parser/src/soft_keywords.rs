@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 use std::iter::FusedIterator;
 
-use crate::lexer::Lexer;
-use crate::{lexer::LexResult, token::Tok, Mode};
+use crate::lexer::{Lexer, LexicalError, Spanned};
+use crate::{token::Tok, Mode, Tokenized};
 
 /// An [`Iterator`] that transforms a token stream to accommodate soft keywords (namely, `match`
 /// `case`, and `type`).
@@ -35,15 +35,34 @@ impl<'source> SoftKeywordLexer<'source> {
             },
         }
     }
+
+    pub fn into_tokenized(mut self) -> Tokenized {
+        let tokens: Vec<_> = self.by_ref().collect();
+        Tokenized {
+            tokens,
+            errors: self.into_errors(),
+        }
+    }
+
+    /// Consumes `self` and returns the lex errors encountered so far.
+    pub fn into_errors(self) -> Vec<LexicalError> {
+        self.underlying.lexer.into_errors()
+    }
+}
+
+impl From<SoftKeywordLexer<'_>> for Tokenized {
+    fn from(lexer: SoftKeywordLexer<'_>) -> Self {
+        lexer.into_tokenized()
+    }
 }
 
 impl Iterator for SoftKeywordLexer<'_> {
-    type Item = LexResult;
+    type Item = Spanned;
 
     #[inline]
-    fn next(&mut self) -> Option<LexResult> {
+    fn next(&mut self) -> Option<Spanned> {
         let mut next = self.underlying.next();
-        if let Some(Ok((tok, range))) = next.as_ref() {
+        if let Some((tok, range)) = next.as_ref() {
             // If the token is a soft keyword e.g. `type`, `match`, or `case`, check if it's
             // used as an identifier. We assume every soft keyword use is an identifier unless
             // a heuristic is met.
@@ -61,7 +80,7 @@ impl Iterator for SoftKeywordLexer<'_> {
                         let mut first = true;
                         let mut seen_colon = false;
                         let mut seen_lambda = false;
-                        while let Some(Ok((tok, _))) = self.underlying.peek() {
+                        while let Some((tok, _)) = self.underlying.peek() {
                             match tok {
                                 Tok::Newline => break,
                                 Tok::Lambda if nesting == 0 => seen_lambda = true,
@@ -79,10 +98,10 @@ impl Iterator for SoftKeywordLexer<'_> {
                             first = false;
                         }
                         if !seen_colon {
-                            next = Some(Ok((soft_to_name(tok), *range)));
+                            next = Some((soft_to_name(tok), *range));
                         }
                     } else {
-                        next = Some(Ok((soft_to_name(tok), *range)));
+                        next = Some((soft_to_name(tok), *range));
                     }
                 }
                 // For `type` all of the following conditions must be met:
@@ -95,7 +114,7 @@ impl Iterator for SoftKeywordLexer<'_> {
                         Position::Statement | Position::SimpleStatement
                     ) {
                         let mut is_type_alias = false;
-                        if let Some(Ok((tok, _))) = self.underlying.peek() {
+                        if let Some((tok, _)) = self.underlying.peek() {
                             if matches!(
                                 tok,
                                 Tok::Name { .. } |
@@ -104,7 +123,7 @@ impl Iterator for SoftKeywordLexer<'_> {
                                 Tok::Type | Tok::Match | Tok::Case
                             ) {
                                 let mut nesting = 0;
-                                while let Some(Ok((tok, _))) = self.underlying.peek() {
+                                while let Some((tok, _)) = self.underlying.peek() {
                                     match tok {
                                         Tok::Newline => break,
                                         Tok::Equal if nesting == 0 => {
@@ -122,10 +141,10 @@ impl Iterator for SoftKeywordLexer<'_> {
                             }
                         }
                         if !is_type_alias {
-                            next = Some(Ok((soft_to_name(tok), *range)));
+                            next = Some((soft_to_name(tok), *range));
                         }
                     } else {
-                        next = Some(Ok((soft_to_name(tok), *range)));
+                        next = Some((soft_to_name(tok), *range));
                     }
                 }
                 _ => (), // Not a soft keyword token
@@ -133,52 +152,50 @@ impl Iterator for SoftKeywordLexer<'_> {
         }
 
         // Update the position, to track whether we're at the start of a logical line.
-        if let Some(lex_result) = next.as_ref() {
-            if let Ok((tok, _)) = lex_result.as_ref() {
-                match tok {
-                    Tok::NonLogicalNewline | Tok::Comment { .. } => {
-                        // Nothing to do.
-                    }
-                    Tok::StartModule | Tok::Newline | Tok::Indent | Tok::Dedent => {
-                        self.position = Position::Statement;
-                    }
-                    // If we see a semicolon, assume we're at the start of a simple statement, as in:
-                    // ```python
-                    // type X = int; type Y = float
-                    // ```
-                    Tok::Semi => {
-                        self.position = Position::SimpleStatement;
-                    }
-                    // If we see a colon, and we're not in a nested context, assume we're at the
-                    // start of a simple statement, as in:
-                    // ```python
-                    // class Class: type X = int
-                    // ```
-                    Tok::Colon if self.position == Position::Other => {
-                        self.position = Position::SimpleStatement;
-                    }
-                    Tok::Lpar | Tok::Lsqb | Tok::Lbrace => {
-                        self.position = if let Position::Nested(depth) = self.position {
-                            Position::Nested(depth.saturating_add(1))
-                        } else {
-                            Position::Nested(1)
-                        };
-                    }
-                    Tok::Rpar | Tok::Rsqb | Tok::Rbrace => {
-                        self.position = if let Position::Nested(depth) = self.position {
-                            let depth = depth.saturating_sub(1);
-                            if depth > 0 {
-                                Position::Nested(depth)
-                            } else {
-                                Position::Other
-                            }
+        if let Some((tok, _)) = next.as_ref() {
+            match tok {
+                Tok::NonLogicalNewline | Tok::Comment { .. } => {
+                    // Nothing to do.
+                }
+                Tok::StartModule | Tok::Newline | Tok::Indent | Tok::Dedent => {
+                    self.position = Position::Statement;
+                }
+                // If we see a semicolon, assume we're at the start of a simple statement, as in:
+                // ```python
+                // type X = int; type Y = float
+                // ```
+                Tok::Semi => {
+                    self.position = Position::SimpleStatement;
+                }
+                // If we see a colon, and we're not in a nested context, assume we're at the
+                // start of a simple statement, as in:
+                // ```python
+                // class Class: type X = int
+                // ```
+                Tok::Colon if self.position == Position::Other => {
+                    self.position = Position::SimpleStatement;
+                }
+                Tok::Lpar | Tok::Lsqb | Tok::Lbrace => {
+                    self.position = if let Position::Nested(depth) = self.position {
+                        Position::Nested(depth.saturating_add(1))
+                    } else {
+                        Position::Nested(1)
+                    };
+                }
+                Tok::Rpar | Tok::Rsqb | Tok::Rbrace => {
+                    self.position = if let Position::Nested(depth) = self.position {
+                        let depth = depth.saturating_sub(1);
+                        if depth > 0 {
+                            Position::Nested(depth)
                         } else {
                             Position::Other
-                        };
-                    }
-                    _ => {
-                        self.position = Position::Other;
-                    }
+                        }
+                    } else {
+                        Position::Other
+                    };
+                }
+                _ => {
+                    self.position = Position::Other;
                 }
             }
         }
@@ -218,7 +235,7 @@ enum Position {
 
 struct PeekableLexer<'source> {
     lexer: Lexer<'source>,
-    lookahead: VecDeque<LexResult>,
+    lookahead: VecDeque<Spanned>,
     lookahead_index: usize,
 }
 
@@ -234,7 +251,7 @@ impl<'source> PeekableLexer<'source> {
     /// Peeks one token ahead.
     ///
     /// Calling the method multiple times works similar to `next` in that it peeks one token further ahead each time the function is called.
-    fn peek(&mut self) -> Option<&LexResult> {
+    fn peek(&mut self) -> Option<&Spanned> {
         let result = if self.lookahead_index < self.lookahead.len() {
             &self.lookahead[self.lookahead_index]
         } else if let Some(result) = self.lexer.next() {
@@ -251,10 +268,10 @@ impl<'source> PeekableLexer<'source> {
 }
 
 impl Iterator for PeekableLexer<'_> {
-    type Item = LexResult;
+    type Item = Spanned;
 
     /// Returns the next token. Resets the lookahead.
-    fn next(&mut self) -> Option<LexResult> {
+    fn next(&mut self) -> Option<Spanned> {
         // Reset the lookahead
         self.lookahead_index = 0;
 

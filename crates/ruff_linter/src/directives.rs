@@ -4,7 +4,7 @@ use std::iter::Peekable;
 use std::str::FromStr;
 
 use bitflags::bitflags;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 
@@ -67,7 +67,7 @@ pub struct Directives {
 }
 
 pub fn extract_directives(
-    lxr: &[LexResult],
+    lxr: &[Spanned],
     flags: Flags,
     locator: &Locator,
     indexer: &Indexer,
@@ -120,10 +120,10 @@ where
 }
 
 /// Extract a mapping from logical line to noqa line.
-fn extract_noqa_line_for(lxr: &[LexResult], locator: &Locator, indexer: &Indexer) -> NoqaMapping {
+fn extract_noqa_line_for(lxr: &[Spanned], locator: &Locator, indexer: &Indexer) -> NoqaMapping {
     let mut string_mappings = Vec::new();
 
-    for (tok, range) in lxr.iter().flatten() {
+    for (tok, range) in lxr.iter() {
         match tok {
             Tok::EndOfFile => {
                 break;
@@ -397,7 +397,7 @@ impl TodoDirectiveKind {
 
 #[cfg(test)]
 mod tests {
-    use ruff_python_parser::lexer::LexResult;
+    use ruff_python_parser::lexer::Spanned;
     use ruff_python_parser::{lexer, Mode};
     use ruff_text_size::{TextLen, TextRange, TextSize};
 
@@ -410,7 +410,7 @@ mod tests {
     use crate::noqa::NoqaMapping;
 
     fn noqa_mappings(contents: &str) -> NoqaMapping {
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<Spanned> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
 
@@ -589,7 +589,7 @@ assert foo, \
         let contents = "x = 1
 y = 2
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -602,7 +602,7 @@ x = 1
 y = 2
 # isort: on
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -617,7 +617,7 @@ y = 2
 # isort: on
 z = x + 1
 # isort: on";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -629,7 +629,7 @@ z = x + 1
 x = 1
 y = 2
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -641,7 +641,7 @@ z = x + 1";
 x = 1
 y = 2
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -655,7 +655,7 @@ x = 1
 y = 2
 # isort: skip_file
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -669,7 +669,7 @@ z = x + 1";
         let contents = "x = 1
 y = 2
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -681,7 +681,7 @@ z = x + 1";
 y = 2
 # isort: split
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(
@@ -692,7 +692,7 @@ z = x + 1";
         let contents = "x = 1
 y = 2  # isort: split
 z = x + 1";
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<_> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let indexer = Indexer::from_tokens(&lxr, &locator);
         assert_eq!(

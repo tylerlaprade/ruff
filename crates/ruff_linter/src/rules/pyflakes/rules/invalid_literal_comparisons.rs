@@ -151,7 +151,6 @@ fn locate_cmp_ops(expr: &Expr, source: &str) -> Vec<LocatedCmpOp> {
     let contents = &source[expr.range()];
     let parenthesized_contents = format!("({contents})");
     let mut tok_iter = lexer::lex(&parenthesized_contents, Mode::Expression)
-        .flatten()
         .skip(1)
         .map(|(tok, range)| (tok, range - TextSize::from(1)))
         .filter(|(tok, _)| !matches!(tok, Tok::NonLogicalNewline | Tok::Comment(_)))

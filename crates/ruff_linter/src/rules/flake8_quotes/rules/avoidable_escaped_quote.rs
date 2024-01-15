@@ -1,7 +1,7 @@
 use ruff_diagnostics::{AlwaysFixableViolation, Diagnostic, Edit, Fix};
 use ruff_macros::{derive_message_formats, violation};
 use ruff_python_ast::str::{is_triple_quote, leading_quote};
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_source_file::Locator;
 use ruff_text_size::TextRange;
@@ -126,7 +126,7 @@ impl FStringContext {
 /// Q003
 pub(crate) fn avoidable_escaped_quote(
     diagnostics: &mut Vec<Diagnostic>,
-    lxr: &[LexResult],
+    lxr: &[Spanned],
     locator: &Locator,
     settings: &LinterSettings,
 ) {
@@ -135,7 +135,7 @@ pub(crate) fn avoidable_escaped_quote(
     let mut fstrings: Vec<FStringContext> = Vec::new();
     let mut state_machine = StateMachine::default();
 
-    for &(ref tok, tok_range) in lxr.iter().flatten() {
+    for &(ref tok, tok_range) in lxr.iter() {
         let is_docstring = state_machine.consume(tok);
         if is_docstring {
             continue;
@@ -298,13 +298,13 @@ pub(crate) fn avoidable_escaped_quote(
 /// Q004
 pub(crate) fn unnecessary_escaped_quote(
     diagnostics: &mut Vec<Diagnostic>,
-    lxr: &[LexResult],
+    lxr: &[Spanned],
     locator: &Locator,
 ) {
     let mut fstrings: Vec<FStringContext> = Vec::new();
     let mut state_machine = StateMachine::default();
 
-    for &(ref tok, tok_range) in lxr.iter().flatten() {
+    for &(ref tok, tok_range) in lxr.iter() {
         let is_docstring = state_machine.consume(tok);
         if is_docstring {
             continue;

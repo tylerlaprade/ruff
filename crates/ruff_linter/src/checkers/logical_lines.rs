@@ -1,6 +1,6 @@
 use ruff_diagnostics::Diagnostic;
 use ruff_python_codegen::Stylist;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::TokenKind;
 use ruff_source_file::Locator;
 use ruff_text_size::{Ranged, TextRange};
@@ -31,7 +31,7 @@ fn expand_indent(line: &str) -> usize {
 }
 
 pub(crate) fn check_logical_lines(
-    tokens: &[LexResult],
+    tokens: &[Spanned],
     locator: &Locator,
     stylist: &Stylist,
     settings: &LinterSettings,

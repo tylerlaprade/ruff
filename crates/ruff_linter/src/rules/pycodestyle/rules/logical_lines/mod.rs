@@ -13,7 +13,7 @@ use std::fmt::{Debug, Formatter};
 use std::iter::FusedIterator;
 
 use bitflags::bitflags;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 
 use ruff_python_parser::TokenKind;
@@ -58,13 +58,13 @@ pub(crate) struct LogicalLines<'a> {
 }
 
 impl<'a> LogicalLines<'a> {
-    pub(crate) fn from_tokens(tokens: &'a [LexResult], locator: &'a Locator<'a>) -> Self {
+    pub(crate) fn from_tokens(tokens: &'a [Spanned], locator: &'a Locator<'a>) -> Self {
         assert!(u32::try_from(tokens.len()).is_ok());
 
         let mut builder = LogicalLinesBuilder::with_capacity(tokens.len());
         let mut parens = 0u32;
 
-        for (token, range) in tokens.iter().flatten() {
+        for (token, range) in tokens.iter() {
             let token_kind = TokenKind::from_token(token);
             builder.push_token(token_kind, *range);
 
@@ -504,7 +504,7 @@ struct Line {
 
 #[cfg(test)]
 mod tests {
-    use ruff_python_parser::lexer::LexResult;
+    use ruff_python_parser::lexer::Spanned;
     use ruff_python_parser::{lexer, Mode};
 
     use ruff_source_file::Locator;
@@ -590,7 +590,7 @@ if False:
     }
 
     fn assert_logical_lines(contents: &str, expected: &[&str]) {
-        let lxr: Vec<LexResult> = lexer::lex(contents, Mode::Module).collect();
+        let lxr: Vec<Spanned> = lexer::lex(contents, Mode::Module).collect();
         let locator = Locator::new(contents);
         let actual: Vec<String> = LogicalLines::from_tokens(&lxr, &locator)
             .into_iter()

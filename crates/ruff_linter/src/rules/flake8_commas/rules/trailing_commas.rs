@@ -4,7 +4,7 @@ use ruff_diagnostics::{AlwaysFixableViolation, Violation};
 use ruff_diagnostics::{Diagnostic, Edit, Fix};
 use ruff_macros::{derive_message_formats, violation};
 use ruff_python_index::Indexer;
-use ruff_python_parser::lexer::{LexResult, Spanned};
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_source_file::Locator;
 use ruff_text_size::{Ranged, TextRange};
@@ -232,14 +232,13 @@ impl AlwaysFixableViolation for ProhibitedTrailingComma {
 /// COM812, COM818, COM819
 pub(crate) fn trailing_commas(
     diagnostics: &mut Vec<Diagnostic>,
-    tokens: &[LexResult],
+    tokens: &[Spanned],
     locator: &Locator,
     indexer: &Indexer,
 ) {
     let mut fstrings = 0u32;
     let tokens = tokens
         .iter()
-        .flatten()
         .filter_map(|spanned @ (tok, tok_range)| match tok {
             // Completely ignore comments -- they just interfere with the logic.
             Tok::Comment(_) => None,

@@ -98,7 +98,7 @@ impl Indentations {
 
     /// Dedent one level to eventually reach `new_indentation`.
     ///
-    /// Returns `Err` if the `new_indentation` is greater than the new current indentation level.
+    /// Returns `Err` if the `new_indentation` is greater than the current indentation level.
     pub(super) fn dedent_one(
         &mut self,
         new_indentation: Indentation,

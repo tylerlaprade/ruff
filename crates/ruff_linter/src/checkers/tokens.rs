@@ -4,7 +4,7 @@ use std::path::Path;
 
 use ruff_notebook::CellOffsets;
 use ruff_python_ast::PySourceType;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 
 use ruff_diagnostics::Diagnostic;
@@ -22,7 +22,7 @@ use crate::rules::{
 use crate::settings::LinterSettings;
 
 pub(crate) fn check_tokens(
-    tokens: &[LexResult],
+    tokens: &[Spanned],
     path: &Path,
     locator: &Locator,
     indexer: &Indexer,
@@ -50,7 +50,7 @@ pub(crate) fn check_tokens(
         Rule::AmbiguousUnicodeCharacterComment,
     ]) {
         let mut state_machine = StateMachine::default();
-        for &(ref tok, range) in tokens.iter().flatten() {
+        for &(ref tok, range) in tokens.iter() {
             let is_docstring = state_machine.consume(tok);
             let context = match tok {
                 Tok::String { .. } => {
@@ -83,7 +83,7 @@ pub(crate) fn check_tokens(
     }
 
     if settings.rules.enabled(Rule::InvalidEscapeSequence) {
-        for (tok, range) in tokens.iter().flatten() {
+        for (tok, range) in tokens.iter() {
             pycodestyle::rules::invalid_escape_sequence(
                 &mut diagnostics,
                 locator,
@@ -105,7 +105,7 @@ pub(crate) fn check_tokens(
         Rule::InvalidCharacterNul,
         Rule::InvalidCharacterZeroWidthSpace,
     ]) {
-        for (tok, range) in tokens.iter().flatten() {
+        for (tok, range) in tokens.iter() {
             pylint::rules::invalid_string_characters(&mut diagnostics, tok, *range, locator);
         }
     }

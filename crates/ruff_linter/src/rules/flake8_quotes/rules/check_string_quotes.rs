@@ -1,4 +1,4 @@
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_text_size::{TextRange, TextSize};
 
@@ -423,7 +423,7 @@ impl FStringRangeBuilder {
 /// Generate `flake8-quote` diagnostics from a token stream.
 pub(crate) fn check_string_quotes(
     diagnostics: &mut Vec<Diagnostic>,
-    lxr: &[LexResult],
+    lxr: &[Spanned],
     locator: &Locator,
     settings: &LinterSettings,
 ) {
@@ -432,7 +432,7 @@ pub(crate) fn check_string_quotes(
     let mut sequence = vec![];
     let mut state_machine = StateMachine::default();
     let mut fstring_range_builder = FStringRangeBuilder::default();
-    for &(ref tok, range) in lxr.iter().flatten() {
+    for &(ref tok, range) in lxr.iter() {
         fstring_range_builder.visit_token(tok, range);
         if fstring_range_builder.in_fstring() {
             continue;

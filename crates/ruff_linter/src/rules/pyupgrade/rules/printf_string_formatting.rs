@@ -359,9 +359,7 @@ pub(crate) fn printf_string_formatting(checker: &mut Checker, expr: &Expr, right
         checker.locator().slice(expr),
         checker.source_type.as_mode(),
         expr.start(),
-    )
-    .flatten()
-    {
+    ) {
         if tok.is_string() {
             strings.push(range);
         } else if matches!(tok, Tok::Rpar) {

@@ -24,7 +24,7 @@ pub(crate) fn main(args: &Args) -> Result<()> {
             args.file.display()
         )
     })?;
-    for (tok, range) in lexer::lex(source_kind.source_code(), source_type.as_mode()).flatten() {
+    for (tok, range) in lexer::lex(source_kind.source_code(), source_type.as_mode()) {
         println!(
             "{start:#?} {tok:#?} {end:#?}",
             start = range.start(),

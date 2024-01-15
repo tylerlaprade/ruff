@@ -16,8 +16,7 @@ use ruff_python_ast::{Mod, PySourceType};
 use ruff_python_codegen::Stylist;
 use ruff_python_formatter::{format_module_ast, pretty_comments, PyFormatContext, QuoteStyle};
 use ruff_python_index::{CommentRangesBuilder, Indexer};
-use ruff_python_parser::lexer::LexResult;
-use ruff_python_parser::{parse_tokens, AsMode, Mode};
+use ruff_python_parser::{parse_tokens, AsMode, Mode, Tokenized};
 use ruff_python_trivia::CommentRanges;
 use ruff_source_file::{Locator, SourceLocation};
 use ruff_text_size::Ranged;
@@ -160,20 +159,24 @@ impl Workspace {
         let source_kind = SourceKind::Python(contents.to_string());
 
         // Tokenize once.
-        let tokens: Vec<LexResult> = ruff_python_parser::tokenize(contents, source_type.as_mode());
+        let tokenized = ruff_python_parser::tokenize(contents, source_type.as_mode());
 
         // Map row and column locations to byte slices (lazily).
         let locator = Locator::new(contents);
 
         // Detect the current code style (lazily).
-        let stylist = Stylist::from_tokens(&tokens, &locator);
+        let stylist = Stylist::from_tokens(tokenized.tokens(), &locator);
 
         // Extra indices from the code.
-        let indexer = Indexer::from_tokens(&tokens, &locator);
+        let indexer = Indexer::from_tokens(tokenized.tokens(), &locator);
 
         // Extract the `# noqa` and `# isort: skip` directives from the source.
-        let directives =
-            directives::extract_directives(&tokens, directives::Flags::empty(), &locator, &indexer);
+        let directives = directives::extract_directives(
+            tokenized.tokens(),
+            directives::Flags::empty(),
+            &locator,
+            &indexer,
+        );
 
         // Generate checks.
         let LinterResult {
@@ -190,7 +193,7 @@ impl Workspace {
             flags::Noqa::Enabled,
             &source_kind,
             source_type,
-            TokenSource::Tokens(tokens),
+            TokenSource::Tokens(tokenized),
         );
 
         let source_code = locator.to_source_code();
@@ -272,14 +275,23 @@ struct ParsedModule<'a> {
 
 impl<'a> ParsedModule<'a> {
     fn from_source(source_code: &'a str) -> Result<Self, Error> {
-        let tokens: Vec<_> = ruff_python_parser::lexer::lex(source_code, Mode::Module).collect();
+        let mut lexer = ruff_python_parser::lexer::lex(source_code, Mode::Module);
+        let mut tokens = Vec::new();
         let mut comment_ranges = CommentRangesBuilder::default();
 
-        for (token, range) in tokens.iter().flatten() {
-            comment_ranges.visit_token(token, *range);
+        for (token, range) in lexer.by_ref() {
+            comment_ranges.visit_token(&token, range);
+
+            tokens.push((token, range));
         }
+
         let comment_ranges = comment_ranges.finish();
-        let module = parse_tokens(tokens, source_code, Mode::Module).map_err(into_error)?;
+        let module = parse_tokens(
+            Tokenized::new(tokens, lexer.into_errors()),
+            source_code,
+            Mode::Module,
+        )
+        .map_err(into_error)?;
 
         Ok(Self {
             source_code,

@@ -578,9 +578,8 @@ mod tests {
         fn from_code(source: &'a str) -> Self {
             let source_code = SourceCode::new(source);
             let source_type = PySourceType::Python;
-            let (tokens, comment_ranges) =
-                tokens_and_ranges(source, source_type).expect("Expect source to be valid Python");
-            let parsed = parse_tokens(tokens, source, source_type.as_mode())
+            let (tokenized, comment_ranges) = tokens_and_ranges(source, source_type);
+            let parsed = parse_tokens(tokenized, source, source_type.as_mode())
                 .expect("Expect source to be valid Python");
 
             CommentsTestCase {

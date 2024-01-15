@@ -5,7 +5,7 @@ use std::ops::Deref;
 
 use once_cell::unsync::OnceCell;
 use ruff_python_literal::escape::Quote as StrQuote;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_source_file::{find_newline, LineEnding};
 
@@ -37,7 +37,7 @@ impl<'a> Stylist<'a> {
         })
     }
 
-    pub fn from_tokens(tokens: &[LexResult], locator: &'a Locator<'a>) -> Self {
+    pub fn from_tokens(tokens: &[Spanned], locator: &'a Locator<'a>) -> Self {
         let indentation = detect_indention(tokens, locator);
 
         Self {
@@ -49,8 +49,8 @@ impl<'a> Stylist<'a> {
     }
 }
 
-fn detect_quote(tokens: &[LexResult], locator: &Locator) -> Quote {
-    let quote_range = tokens.iter().flatten().find_map(|(t, range)| match t {
+fn detect_quote(tokens: &[Spanned], locator: &Locator) -> Quote {
+    let quote_range = tokens.iter().find_map(|(t, range)| match t {
         Tok::String {
             triple_quoted: false,
             ..
@@ -77,8 +77,8 @@ fn detect_quote(tokens: &[LexResult], locator: &Locator) -> Quote {
     Quote::default()
 }
 
-fn detect_indention(tokens: &[LexResult], locator: &Locator) -> Indentation {
-    let indent_range = tokens.iter().flatten().find_map(|(t, range)| {
+fn detect_indention(tokens: &[Spanned], locator: &Locator) -> Indentation {
+    let indent_range = tokens.iter().find_map(|(t, range)| {
         if matches!(t, Tok::Indent) {
             Some(range)
         } else {

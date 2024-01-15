@@ -221,6 +221,9 @@ pub enum Tok {
     // RustPython specific.
     StartModule,
     StartExpression,
+
+    // Error recovery. An Unknown token
+    Unknown,
 }
 
 impl Tok {
@@ -348,6 +351,7 @@ impl fmt::Display for Tok {
             With => f.write_str("'with'"),
             Yield => f.write_str("'yield'"),
             ColonEqual => f.write_str("':='"),
+            Unknown => f.write_str("Unknown"),
         }
     }
 }
@@ -628,6 +632,9 @@ pub enum TokenKind {
     StartModule,
     StartInteractive,
     StartExpression,
+
+    // Error recovery
+    Unknown,
 }
 
 impl TokenKind {
@@ -901,6 +908,7 @@ impl TokenKind {
             Tok::Yield => TokenKind::Yield,
             Tok::StartModule => TokenKind::StartModule,
             Tok::StartExpression => TokenKind::StartExpression,
+            Tok::Unknown => TokenKind::Unknown,
         }
     }
 }

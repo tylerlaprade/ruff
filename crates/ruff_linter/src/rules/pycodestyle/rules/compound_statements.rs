@@ -1,6 +1,6 @@
 use ruff_notebook::CellOffsets;
 use ruff_python_ast::PySourceType;
-use ruff_python_parser::lexer::LexResult;
+use ruff_python_parser::lexer::Spanned;
 use ruff_python_parser::Tok;
 use ruff_text_size::{TextRange, TextSize};
 
@@ -100,7 +100,7 @@ impl AlwaysFixableViolation for UselessSemicolon {
 /// E701, E702, E703
 pub(crate) fn compound_statements(
     diagnostics: &mut Vec<Diagnostic>,
-    lxr: &[LexResult],
+    lxr: &[Spanned],
     locator: &Locator,
     indexer: &Indexer,
     source_type: PySourceType,
@@ -135,7 +135,7 @@ pub(crate) fn compound_statements(
     let mut indent = 0u32;
 
     // Keep the token iterator to perform lookaheads.
-    let mut tokens = lxr.iter().flatten();
+    let mut tokens = lxr.iter();
 
     while let Some(&(ref tok, range)) = tokens.next() {
         match tok {
