@@ -1,5 +1,8 @@
-# Publishes a Docker image to ghcr.io.
-name: PublishDocker
+# Publish a Docker image to Google Container Registry.
+#
+# Assumed to run as a subworkflow of .github/workflows/release.yml; specifically, as a publish job
+# within `cargo-dist`.
+name: Publish Docker
 
 on:
   workflow_call:
@@ -9,7 +12,6 @@ on:
         type: string
 
 jobs:
-  # publish the current repo state to Google Container Registry
   docker-publish:
     name: Push Docker image ghcr.io/astral-sh/ruff
     runs-on: ubuntu-latest
@@ -36,21 +38,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/astral-sh/ruff
-
-      - name: Check tag consistency
-        # Unlike validate-tag we don't check if the commit is on the main branch, but it seems good enough since we can
-        # change docker tags
-        if: ${{ fromJson(inputs.plan).tag != 'dry-run' }}
-        run: |
-          version=$(grep "version = " pyproject.toml | sed -e 's/version = "\(.*\)"/\1/g')
-          if [ "${{ fromJson(inputs.plan).tag }}" != "${version}" ]; then
-            echo "The input tag does not match the version from pyproject.toml:" >&2
-            echo "${{ fromJson(inputs.plan).tag }}" >&2
-            echo "${version}" >&2
-            exit 1
-          else
-            echo "Releasing ${version}"
-          fi
 
       - name: "Build and push Docker image"
         uses: docker/build-push-action@v5
