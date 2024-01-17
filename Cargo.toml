@@ -179,8 +179,7 @@ debug = 1
 
 # The profile that 'cargo dist' will build with. Kept in sync with the `release` profile.
 [profile.dist]
-lto = "thin"
-codegen-units = 16
+inherits = "release"
 
 # Config for 'cargo dist'
 [workspace.metadata.dist]
