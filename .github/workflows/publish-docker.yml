@@ -2,7 +2,7 @@
 #
 # Assumed to run as a subworkflow of .github/workflows/release.yml; specifically, as a publish job
 # within `cargo-dist`.
-name: Publish Docker
+name: "[ruff] Publish Docker image"
 
 on:
   workflow_call:

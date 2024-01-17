@@ -1,7 +1,7 @@
 # Build a Docker image.
 #
 # Generates both wheels (for PyPI) and archived binaries (for GitHub releases).
-name: Build Docker
+name: "[ruff] Build Docker image"
 
 on:
   workflow_call:
