@@ -38,7 +38,7 @@ classifiers = [
 ]
 
 [project.urls]
-repository = "https://github.com/charliermarsh/cargodisttest"
+Repository = "https://github.com/astral-sh/ruff"
 Documentation = "https://docs.astral.sh/ruff/"
 Changelog = "https://github.com/astral-sh/ruff/blob/main/CHANGELOG.md"
 
