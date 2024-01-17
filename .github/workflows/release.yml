@@ -194,16 +194,6 @@ jobs:
     permissions:
       packages: write
 
-  custom-publish-dependents:
-    needs:
-      - plan
-      - host
-    if: ${{ !fromJson(needs.plan.outputs.val).announcement_is_prerelease || fromJson(needs.plan.outputs.val).publish_prereleases }}
-    uses: ./.github/workflows/publish-dependents.yml
-    with:
-      plan: ${{ needs.plan.outputs.val }}
-    secrets: inherit
-
   # Create a Github Release while uploading all files to it
   announce:
     needs:
@@ -211,11 +201,10 @@ jobs:
       - host
       - custom-publish-pypi
       - custom-publish-docker
-      - custom-publish-dependents
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!
-    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-pypi.result == 'skipped' || needs.custom-publish-pypi.result == 'success') && (needs.custom-publish-docker.result == 'skipped' || needs.custom-publish-docker.result == 'success') && (needs.custom-publish-dependents.result == 'skipped' || needs.custom-publish-dependents.result == 'success') }}
+    if: ${{ always() && needs.host.result == 'success' && (needs.custom-publish-pypi.result == 'skipped' || needs.custom-publish-pypi.result == 'success') && (needs.custom-publish-docker.result == 'skipped' || needs.custom-publish-docker.result == 'success') }}
     runs-on: "ubuntu-20.04"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -240,3 +229,12 @@ jobs:
           body: ${{ fromJson(needs.host.outputs.val).announcement_github_body }}
           prerelease: ${{ fromJson(needs.host.outputs.val).announcement_is_prerelease }}
           artifacts: "artifacts/*"
+
+  custom-notify-dependents:
+    needs:
+      - plan
+      - announce
+    uses: ./.github/workflows/notify-dependents.yml
+    with:
+      plan: ${{ needs.plan.outputs.val }}
+    secrets: inherit

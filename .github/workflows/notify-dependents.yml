@@ -10,9 +10,8 @@ on:
 
 jobs:
   update-dependents:
-    name: Update dependents
+    name: Notify dependents
     runs-on: ubuntu-latest
-    needs: publish-release
     steps:
       - name: "Update pre-commit mirror"
         uses: actions/github-script@v7
