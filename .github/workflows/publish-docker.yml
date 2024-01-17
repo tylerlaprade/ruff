@@ -43,10 +43,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker
-          path: artifact.tar
+          path: image
 
       - name: Load artifact
-        run: docker load -i artifact.tar
+        run: docker load -i image
 
       - name: Tag image
         run: docker tag ghcr.io/astral-sh/ruff:latest ghcr.io/astral-sh/ruff:${{ fromJson(inputs.plan).tag || 'dry-run' }}

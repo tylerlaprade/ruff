@@ -32,10 +32,10 @@ jobs:
           # Reuse the builder.
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=docker,dest=artifact.tar
+          outputs: type=oci,dest=image
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: docker
-          path: artifact.tar
+          path: image
