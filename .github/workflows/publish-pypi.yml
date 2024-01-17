@@ -12,14 +12,13 @@ on:
         type: string
 
 jobs:
-  # publish the current repo state to PyPI
   pypi-publish:
     name: Upload to PyPI
     runs-on: ubuntu-latest
     environment:
       name: release
     permissions:
-      # For PyPI's trusted publishing
+      # For PyPI's trusted publishing.
       id-token: write
     steps:
       - uses: actions/download-artifact@v3

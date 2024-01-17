@@ -210,5 +210,3 @@ local-artifacts-jobs = ["./build-binaries", "./build-docker"]
 publish-jobs = ["./publish-pypi"]
 # Announcement jobs to run in CI
 post-announce-jobs = ["./notify-dependents"]
-
-allow-dirty = ["ci"]
