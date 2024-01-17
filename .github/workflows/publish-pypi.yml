@@ -1,11 +1,5 @@
-# Publishes a release to crates.io
-#
-# To trigger this:
-#
-# - go to Actions > PublishRelease
-# - click the Run Workflow dropdown in the top-right
-# - enter the tag of the release as “Release Tag” (e.g. v0.3.18)
-name: PublishRelease
+# Publishes a release to PyPI.
+name: PublishPyPI
 
 on:
   workflow_call:
