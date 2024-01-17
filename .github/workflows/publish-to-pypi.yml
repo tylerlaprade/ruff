@@ -1,0 +1,37 @@
+# Publishes a release to crates.io
+#
+# To trigger this:
+#
+# - go to Actions > PublishRelease
+# - click the Run Workflow dropdown in the top-right
+# - enter the tag of the release as “Release Tag” (e.g. v0.3.18)
+name: PublishRelease
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  # publish the current repo state to PyPI
+  pypi-publish:
+    name: Upload to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+    permissions:
+      # For PyPI's trusted publishing
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels
+          path: wheels
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          packages-dir: wheels
+          verbose: true

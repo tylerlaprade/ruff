@@ -142,6 +142,7 @@ rc_buffer = "warn"
 rc_mutex = "warn"
 rest_pat_in_fully_bound_structs = "warn"
 
+# Kept in sync with the `dist` profile.
 [profile.release]
 # Note that we set these explicitly, and these values
 # were chosen based on a trade-off between compile times
@@ -175,3 +176,37 @@ opt-level = 1
 [profile.profiling]
 inherits = "release"
 debug = 1
+
+# The profile that 'cargo dist' will build with. Kept in sync with the `release` profile.
+[profile.dist]
+lto = "thin"
+codegen-units = 16
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.7.3-prerelease.1"
+# CI backends to support
+ci = ["github"]
+# The installers to generate for each app
+installers = ["shell", "powershell", "msi"]
+# The archive format to use for windows builds (defaults .zip)
+windows-archive = ".zip"
+# The archive format to use for non-windows builds (defaults .tar.xz)
+unix-archive = ".tar.gz"
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-musl", "x86_64-pc-windows-msvc"]
+# Whether cargo-dist should create a Github Release or use an existing draft
+create-release = true
+# Publish jobs to run in CI
+pr-run-mode = "skip"
+# Whether CI should trigger releases with dispatches instead of tag pushes
+dispatch-releases = true
+# Whether CI should include auto-generated code to build local artifacts
+build-local-artifacts = false
+# Local artifacts jobs to run in CI
+local-artifacts-jobs = ["./build"]
+# Publish jobs to run in CI
+publish-jobs = ["./publish-to-pypi"]
+# Skip checking whether the specified configuration files are up to date
+allow-dirty = ["ci"]

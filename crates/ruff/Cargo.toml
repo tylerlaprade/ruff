@@ -1,7 +1,8 @@
 [package]
 name = "ruff"
+description = "An extremely fast Python linter and code formatter, written in Rust."
 version = "0.1.13"
-publish = false
+publish = true
 authors = { workspace = true }
 edition = { workspace = true }
 rust-version = { workspace = true }
@@ -10,6 +11,12 @@ documentation = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
 readme = "../../README.md"
+
+[package.metadata.wix]
+upgrade-guid = "2305E951-7836-4564-AA15-18CF7DD7D38A"
+path-guid = "2948F18C-495F-4776-99E8-96C0D561F24D"
+license = false
+eula = false
 
 [dependencies]
 ruff_cache = { path = "../ruff_cache" }
