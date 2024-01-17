@@ -39,14 +39,20 @@ jobs:
         with:
           images: ghcr.io/astral-sh/ruff
 
-      - name: "Build and push Docker image"
-        uses: docker/build-push-action@v5
+      - name: Download artifact
+        uses: actions/download-artifact@v3
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          # Reuse the builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          push: ${{ fromJson(inputs.plan).tag != 'dry-run' }}
-          tags: ghcr.io/astral-sh/ruff:latest,ghcr.io/astral-sh/ruff:${{ fromJson(inputs.plan).tag || 'dry-run' }}
-          labels: ${{ steps.meta.outputs.labels }}
+          name: docker
+          path: artifact.tar
+
+      - name: Load artifact
+        run: docker load -i artifact.tar
+
+      - name: Tag image
+        run: docker tag ghcr.io/astral-sh/ruff:latest ghcr.io/astral-sh/ruff:${{ fromJson(inputs.plan).tag || 'dry-run' }}
+
+      - name: Label image
+        run: docker label set ${{ steps.meta.outputs.labels }} ghcr.io/astral-sh/ruff:${{ fromJson(inputs.plan).tag || 'dry-run' }}
+
+      - name: Push image
+        run: docker push ghcr.io/astral-sh/ruff:${{ fromJson(inputs.plan).tag || 'dry-run' }}

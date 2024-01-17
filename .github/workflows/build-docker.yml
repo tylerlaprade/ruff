@@ -1,0 +1,41 @@
+# Build a Docker image.
+#
+# Generates both wheels (for PyPI) and archived binaries (for GitHub releases).
+name: Build Docker
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  docker-publish:
+    name: Build Docker image (ghcr.io/astral-sh/ruff)
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Build, but don't publish.
+      - name: "Build Docker image"
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          # Reuse the builder.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=artifact.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker
+          path: artifact.tar
