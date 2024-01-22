@@ -1232,6 +1232,7 @@ where
                                 elts,
                                 ctx,
                                 range: _,
+                                is_parenthesized: _,
                             }) = slice.as_ref()
                             {
                                 let mut iter = elts.iter();

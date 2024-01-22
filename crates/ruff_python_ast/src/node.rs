@@ -3212,6 +3212,7 @@ impl AstNode for ast::ExprTuple {
             elts,
             ctx: _,
             range: _,
+            is_parenthesized: _,
         } = self;
 
         for expr in elts {
