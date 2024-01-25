@@ -9,7 +9,6 @@ use crate::expression::is_expression_huggable;
 use crate::expression::parentheses::{empty_parenthesized, parenthesized, Parentheses};
 use crate::other::commas;
 use crate::prelude::*;
-use crate::preview::is_multiline_string_handling_enabled;
 use crate::string::AnyString;
 
 #[derive(Default)]
@@ -189,7 +188,7 @@ fn is_arguments_huggable(arguments: &Arguments, context: &PyFormatContext) -> bo
     };
 
     // If the expression itself isn't huggable, then we can't hug it.
-    if !(is_expression_huggable(arg, context)
+    if !(is_expression_huggable(arg)
         || AnyString::from_expression(arg)
             .is_some_and(|string| is_huggable_string_argument(string, arguments, context)))
     {
@@ -238,10 +237,6 @@ fn is_huggable_string_argument(
     arguments: &Arguments,
     context: &PyFormatContext,
 ) -> bool {
-    if !is_multiline_string_handling_enabled(context) {
-        return false;
-    }
-
     if string.is_implicit_concatenated() || !string.is_multiline(context.source()) {
         return false;
     }

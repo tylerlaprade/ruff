@@ -303,7 +303,6 @@ impl StringPart {
         locator: &'a Locator,
         configured_style: QuoteStyle,
         parent_docstring_quote_char: Option<QuoteChar>,
-        normalize_hex: bool,
     ) -> NormalizedString<'a> {
         // Per PEP 8, always prefer double quotes for triple-quoted strings.
         let preferred_style = if self.quotes.triple {
@@ -378,7 +377,7 @@ impl StringPart {
             }
         };
 
-        let normalized = normalize_string(raw_content, quotes, self.prefix, normalize_hex);
+        let normalized = normalize_string(raw_content, quotes, self.prefix);
 
         NormalizedString {
             prefix: self.prefix,
@@ -777,12 +776,7 @@ impl TryFrom<char> for QuoteChar {
 /// with the provided [`StringQuotes`] style.
 ///
 /// Returns the normalized string and whether it contains new lines.
-fn normalize_string(
-    input: &str,
-    quotes: StringQuotes,
-    prefix: StringPrefix,
-    normalize_hex: bool,
-) -> Cow<str> {
+fn normalize_string(input: &str, quotes: StringQuotes, prefix: StringPrefix) -> Cow<str> {
     // The normalized string if `input` is not yet normalized.
     // `output` must remain empty if `input` is already normalized.
     let mut output = String::new();
@@ -832,27 +826,25 @@ fn normalize_string(
                     if next == '\\' {
                         // Skip over escaped backslashes
                         chars.next();
-                    } else if normalize_hex {
-                        if let Some(normalised) = UnicodeEscape::new(next, !prefix.is_byte())
-                            .and_then(|escape| {
-                                escape.normalize(&input[index + c.len_utf8() + next.len_utf8()..])
-                            })
-                        {
-                            // Length of the `\` plus the length of the escape sequence character (`u` | `U` | `x`)
-                            let escape_start_len = '\\'.len_utf8() + next.len_utf8();
-                            let escape_start_offset = index + escape_start_len;
-                            if let Cow::Owned(normalised) = &normalised {
-                                output.push_str(&input[last_index..escape_start_offset]);
-                                output.push_str(normalised);
-                                last_index = escape_start_offset + normalised.len();
-                            };
+                    } else if let Some(normalised) = UnicodeEscape::new(next, !prefix.is_byte())
+                        .and_then(|escape| {
+                            escape.normalize(&input[index + c.len_utf8() + next.len_utf8()..])
+                        })
+                    {
+                        // Length of the `\` plus the length of the escape sequence character (`u` | `U` | `x`)
+                        let escape_start_len = '\\'.len_utf8() + next.len_utf8();
+                        let escape_start_offset = index + escape_start_len;
+                        if let Cow::Owned(normalised) = &normalised {
+                            output.push_str(&input[last_index..escape_start_offset]);
+                            output.push_str(normalised);
+                            last_index = escape_start_offset + normalised.len();
+                        };
 
-                            // Move the `chars` iterator passed the escape sequence.
-                            // Simply reassigning `chars` doesn't work because the indices` would
-                            // then be off.
-                            for _ in 0..next.len_utf8() + normalised.len() {
-                                chars.next();
-                            }
+                        // Move the `chars` iterator passed the escape sequence.
+                        // Simply reassigning `chars` doesn't work because the indices` would
+                        // then be off.
+                        for _ in 0..next.len_utf8() + normalised.len() {
+                            chars.next();
                         }
                     }
 
@@ -1032,7 +1024,6 @@ mod tests {
                 quote_char: QuoteChar::Double,
             },
             StringPrefix::BYTE,
-            true,
         );
 
         assert_eq!(r"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a", &normalized);

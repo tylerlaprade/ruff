@@ -11,10 +11,6 @@ use crate::comments::{
 use crate::context::{NodeLevel, TopLevelStatementPosition, WithIndentLevel, WithNodeLevel};
 use crate::expression::expr_string_literal::ExprStringLiteralKind;
 use crate::prelude::*;
-use crate::preview::{
-    is_dummy_implementations_enabled, is_module_docstring_newlines_enabled,
-    is_no_blank_line_before_class_docstring_enabled,
-};
 use crate::statement::stmt_expr::FormatStmtExpr;
 use crate::verbatim::{
     suppressed_node, write_suppressed_statements_starting_with_leading_comment,
@@ -109,30 +105,6 @@ impl FormatRule<Suite, PyFormatContext<'_>> for FormatSuite {
 
             SuiteKind::Class => {
                 if let Some(docstring) = DocstringStmt::try_from_statement(first, self.kind) {
-                    if !comments.has_leading(first)
-                        && lines_before(first.start(), source) > 1
-                        && !source_type.is_stub()
-                        && !is_no_blank_line_before_class_docstring_enabled(f.context())
-                    {
-                        // Allow up to one empty line before a class docstring, e.g., this is
-                        // stable formatting:
-                        //
-                        // ```python
-                        // class Test:
-                        //
-                        //     """Docstring"""
-                        // ```
-                        //
-                        // But, in preview mode, we don't want to allow any empty lines before a
-                        // class docstring, e.g., this is preview formatting:
-                        //
-                        // ```python
-                        // class Test:
-                        //   """Docstring"""
-                        // ```
-                        empty_line().fmt(f)?;
-                    }
-
                     SuiteChildStatement::Docstring(docstring)
                 } else {
                     SuiteChildStatement::Other(first)
@@ -169,8 +141,7 @@ impl FormatRule<Suite, PyFormatContext<'_>> for FormatSuite {
                 && self.kind == SuiteKind::Class
             {
                 true
-            } else if is_module_docstring_newlines_enabled(f.context())
-                && self.kind == SuiteKind::TopLevel
+            } else if self.kind == SuiteKind::TopLevel
                 && DocstringStmt::try_from_statement(first.statement(), self.kind).is_some()
             {
                 // Only in preview mode, insert a newline after a module level docstring, but treat
@@ -264,20 +235,19 @@ impl FormatRule<Suite, PyFormatContext<'_>> for FormatSuite {
                 } else {
                     // Preserve empty lines after a stub implementation but don't insert a new one if there isn't any present in the source.
                     // This is useful when having multiple function overloads that should be grouped to getter by omitting new lines between them.
-                    let is_preceding_stub_function_without_empty_line =
-                        is_dummy_implementations_enabled(f.context())
-                            && following.is_function_def_stmt()
-                            && preceding
-                                .as_function_def_stmt()
-                                .is_some_and(|preceding_stub| {
-                                    contains_only_an_ellipsis(
-                                        &preceding_stub.body,
-                                        f.context().comments(),
-                                    ) && lines_after_ignoring_end_of_line_trivia(
-                                        preceding_stub.end(),
-                                        f.context().source(),
-                                    ) < 2
-                                });
+                    let is_preceding_stub_function_without_empty_line = following
+                        .is_function_def_stmt()
+                        && preceding
+                            .as_function_def_stmt()
+                            .is_some_and(|preceding_stub| {
+                                contains_only_an_ellipsis(
+                                    &preceding_stub.body,
+                                    f.context().comments(),
+                                ) && lines_after_ignoring_end_of_line_trivia(
+                                    preceding_stub.end(),
+                                    f.context().source(),
+                                ) < 2
+                            });
 
                     if !is_preceding_stub_function_without_empty_line {
                         match self.kind {

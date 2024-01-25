@@ -20,7 +20,6 @@ use crate::expression::parentheses::{
     OptionalParentheses, Parentheses, Parenthesize,
 };
 use crate::prelude::*;
-use crate::preview::is_hug_parens_with_braces_and_square_brackets_enabled;
 
 mod binary_like;
 pub(crate) mod expr_attribute;
@@ -125,7 +124,7 @@ impl FormatRule<Expr, PyFormatContext<'_>> for FormatExpr {
             let node_comments = comments.leading_dangling_trailing(expression);
             if !node_comments.has_leading() && !node_comments.has_trailing() {
                 parenthesized("(", &format_expr, ")")
-                    .with_hugging(is_expression_huggable(expression, f.context()))
+                    .with_hugging(is_expression_huggable(expression))
                     .fmt(f)
             } else {
                 format_with_parentheses_comments(expression, &node_comments, f)
@@ -443,7 +442,7 @@ impl Format<PyFormatContext<'_>> for MaybeParenthesizeExpression<'_> {
             OptionalParentheses::Never => match parenthesize {
                 Parenthesize::IfBreaksOrIfRequired => {
                     parenthesize_if_expands(&expression.format().with_options(Parentheses::Never))
-                        .with_indent(!is_expression_huggable(expression, f.context()))
+                        .with_indent(!is_expression_huggable(expression))
                         .fmt(f)
                 }
 
@@ -1109,7 +1108,7 @@ pub(crate) fn has_own_parentheses(
 ///     ]
 /// )
 /// ```
-pub(crate) fn is_expression_huggable(expr: &Expr, context: &PyFormatContext) -> bool {
+pub(crate) fn is_expression_huggable(expr: &Expr) -> bool {
     match expr {
         Expr::Tuple(_)
         | Expr::List(_)
@@ -1117,9 +1116,9 @@ pub(crate) fn is_expression_huggable(expr: &Expr, context: &PyFormatContext) -> 
         | Expr::Dict(_)
         | Expr::ListComp(_)
         | Expr::SetComp(_)
-        | Expr::DictComp(_) => is_hug_parens_with_braces_and_square_brackets_enabled(context),
+        | Expr::DictComp(_) => true,
 
-        Expr::Starred(ast::ExprStarred { value, .. }) => is_expression_huggable(value, context),
+        Expr::Starred(ast::ExprStarred { value, .. }) => is_expression_huggable(value),
 
         Expr::BoolOp(_)
         | Expr::NamedExpr(_)
