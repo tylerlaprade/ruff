@@ -4,7 +4,9 @@
 //! to stable. The challenge with directly using [`is_preview`](PyFormatContext::is_preview) is that it is unclear
 //! for which specific feature this preview check is for. Having named functions simplifies the promotion:
 //! Simply delete the function and let Rust tell you which checks you have to remove.
-use crate::{PyFormatContext, PyFormatter};
+use ruff_formatter::FormatContext;
+
+use crate::PyFormatContext;
 
 /// Returns `true` if the [`fix_power_op_line_length`](https://github.com/astral-sh/ruff/issues/8938) preview style is enabled.
 pub(crate) const fn is_fix_power_op_line_length_enabled(context: &PyFormatContext) -> bool {
@@ -69,6 +71,7 @@ pub(crate) const fn is_multiline_string_handling_enabled(context: &PyFormatConte
 }
 
 /// Returns `true` if the [`PEP 701`](https://github.com/astral-sh/ruff/issues/7594) preview style is enabled.
-pub(crate) const fn is_pep_701_enabled(f: &PyFormatter) -> bool {
-    f.context.is_preview() && f.options.target_version().supports_pep_701()
+pub(crate) fn is_pep_701_enabled(context: &PyFormatContext) -> bool {
+    // context.is_preview() && context.options().target_version().supports_pep_701()
+    true
 }
