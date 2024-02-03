@@ -1,7 +1,9 @@
 /// See: [eradicate.py](https://github.com/myint/eradicate/blob/98f199940979c94447a461d50d27862b118b282d/eradicate.py)
 use aho_corasick::AhoCorasick;
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::{Regex, RegexSet};
+use ruff_python_parser::lexer::lex;
 
 use ruff_python_parser::parse_suite;
 use ruff_python_trivia::{SimpleTokenKind, SimpleTokenizer};
@@ -56,19 +58,10 @@ pub(crate) fn comment_contains_code(line: &str, task_tags: &[String]) -> bool {
 
     // Fast path: if the comment starts with two consecutive identifiers, we know it won't parse,
     // unless the first identifier is a keyword.
-    if let Some(token) = SimpleTokenizer::starts_at(TextSize::default(), line)
-        .skip_trivia()
-        .next()
-    {
-        if token.kind == SimpleTokenKind::Name {
-            if let Some(token) = SimpleTokenizer::starts_at(token.end(), line)
-                .skip_trivia()
-                .next()
-            {
-                if token.kind == SimpleTokenKind::Name {
-                    return false;
-                }
-            }
+    let mut tokenizer = SimpleTokenizer::starts_at(TextSize::default(), line).skip_trivia();
+    for (a, b) in tokenizer.tuple_windows() {
+        if a.kind == SimpleTokenKind::Name && b.kind == SimpleTokenKind::Name {
+            return false;
         }
     }
 
