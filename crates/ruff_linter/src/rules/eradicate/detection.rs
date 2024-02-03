@@ -4,11 +4,12 @@ use once_cell::sync::Lazy;
 use regex::{Regex, RegexSet};
 
 use ruff_python_parser::parse_suite;
+use ruff_python_trivia::{SimpleTokenKind, SimpleTokenizer};
+use ruff_text_size::{Ranged, TextSize};
 
 static CODE_INDICATORS: Lazy<AhoCorasick> = Lazy::new(|| {
     AhoCorasick::new([
-        "(", ")", "[", "]", "{", "}", ":", "=", "%", "print", "return", "break", "continue",
-        "import",
+        "(", ")", "[", "]", "{", "}", ":", "=", "%", "return", "break", "continue", "import",
     ])
     .unwrap()
 });
@@ -51,6 +52,24 @@ pub(crate) fn comment_contains_code(line: &str, task_tags: &[String]) -> bool {
         .is_some_and(|first| task_tags.iter().any(|tag| tag == first))
     {
         return false;
+    }
+
+    // Fast path: if the comment starts with two consecutive identifiers, we know it won't parse,
+    // unless the first identifier is a keyword.
+    if let Some(token) = SimpleTokenizer::starts_at(TextSize::default(), line)
+        .skip_trivia()
+        .next()
+    {
+        if token.kind == SimpleTokenKind::Name {
+            if let Some(token) = SimpleTokenizer::starts_at(token.end(), line)
+                .skip_trivia()
+                .next()
+            {
+                if token.kind == SimpleTokenKind::Name {
+                    return false;
+                }
+            }
+        }
     }
 
     // Ignore whitelisted comments.
@@ -123,9 +142,10 @@ mod tests {
 
     #[test]
     fn comment_contains_code_with_print() {
-        assert!(comment_contains_code("#print", &[]));
         assert!(comment_contains_code("#print(1)", &[]));
 
+        assert!(!comment_contains_code("#print", &[]));
+        assert!(!comment_contains_code("#print 1", &[]));
         assert!(!comment_contains_code("#to print", &[]));
     }
 

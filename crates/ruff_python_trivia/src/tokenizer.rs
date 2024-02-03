@@ -182,7 +182,7 @@ fn to_keyword_or_other(source: &str) -> SimpleTokenKind {
         "case" => SimpleTokenKind::Case,
         "with" => SimpleTokenKind::With,
         "yield" => SimpleTokenKind::Yield,
-        _ => SimpleTokenKind::Other, // Potentially an identifier, but only if it isn't a string prefix. We can ignore this for now https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+        _ => SimpleTokenKind::Name, // Potentially an identifier, but only if it isn't a string prefix. We can ignore this for now https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     }
 }
 
@@ -466,6 +466,9 @@ pub enum SimpleTokenKind {
 
     /// `yield`
     Yield,
+
+    /// An identifier or keyword.
+    Name,
 
     /// Any other non trivia token.
     Other,
